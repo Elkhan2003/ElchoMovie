@@ -23,6 +23,7 @@
 		"vite": "^7.0.4"
 	},
 	"dependencies": {
+		"@lucide/svelte": "^0.535.0",
 		"@tanstack/svelte-query": "^5.83.0",
 		"axios": "^1.11.0",
 		"sass-embedded": "^1.89.2"

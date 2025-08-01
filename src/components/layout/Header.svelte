@@ -22,6 +22,10 @@
 		console.log('Открыть модальное окно поиска');
 		// Здесь будет логика открытия модального окна
 	};
+
+	const currentPath = $derived((href: string) => {
+		return page.url.pathname === href;
+	});
 </script>
 
 <header class="header">
@@ -43,7 +47,7 @@
 							<a
 								href={item.path}
 								class="nav_link"
-								class:active={page.url.pathname === item.path}
+								class:active={currentPath(item.path)}
 							>
 								{item.name}
 							</a>
@@ -75,12 +79,6 @@
 				<button class="btn btn_primary">Регистрация</button>
 			</div>
 		</div>
-	</div>
-
-	<!-- Фоновые эффекты -->
-	<div class="header_bg">
-		<div class="header_gradient"></div>
-		<div class="header_dots"></div>
 	</div>
 </header>
 

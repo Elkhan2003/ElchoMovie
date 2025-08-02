@@ -584,11 +584,7 @@
 						left: 0;
 						right: 0;
 						bottom: 0;
-						background: linear-gradient(
-							45deg,
-							rgba(139, 92, 246, 0.8),
-							rgba(168, 85, 247, 0.8)
-						);
+						backdrop-filter: blur(2px);
 						display: flex;
 						align-items: center;
 						justify-content: center;

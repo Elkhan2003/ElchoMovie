@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount, onDestroy } from 'svelte';
 	import { Play, Star, ChevronLeft, ChevronRight, Pause } from '@lucide/svelte';
 	import { useGetUpcomingQuery } from '../../../../api/upcoming';
 
@@ -13,11 +12,10 @@
 
 	// Переменные для управления таймингом
 	let autoplayInterval: number | undefined = $state();
-	let progressStartTime = $state(0);
 	let elapsedTime = $state(0);
-	let isPausedTime = $state(0);
 
 	const progressDuration = 5000; // 5 секунд
+	const intervalStep = 16; // ~60fps для плавности
 
 	// Функции для работы со слайдером
 	const nextSlide = (isAutomatic = false) => {
@@ -47,8 +45,6 @@
 	const resetProgress = () => {
 		stopAutoplay();
 		elapsedTime = 0;
-		isPausedTime = 0;
-		progressStartTime = Date.now();
 		startAutoplay();
 	};
 
@@ -56,24 +52,18 @@
 	const startAutoplay = () => {
 		if (autoplayInterval) return; // Предотвращаем создание множественных интервалов
 
-		progressStartTime = Date.now();
-
 		autoplayInterval = setInterval(() => {
 			if (!isPaused) {
-				const now = Date.now();
-				const totalElapsed = now - progressStartTime + isPausedTime;
-				elapsedTime = totalElapsed;
+				elapsedTime += intervalStep;
 
-				if (totalElapsed >= progressDuration) {
+				if (elapsedTime >= progressDuration) {
 					// Автоматическое переключение без сброса прогресса
 					nextSlide(true);
 					// Сбрасываем прогресс после переключения
 					elapsedTime = 0;
-					isPausedTime = 0;
-					progressStartTime = Date.now();
 				}
 			}
-		}, 16); // ~60fps для плавности
+		}, intervalStep);
 	};
 
 	const stopAutoplay = () => {
@@ -85,16 +75,7 @@
 
 	// Функция для обработки паузы/воспроизведения
 	const togglePlayPause = () => {
-		if (isPaused) {
-			// Возобновляем - сбрасываем время начала, но сохраняем накопленное время паузы
-			isPaused = false;
-			progressStartTime = Date.now();
-		} else {
-			// Ставим на паузу - сохраняем текущее время
-			isPaused = true;
-			const now = Date.now();
-			isPausedTime = now - progressStartTime + isPausedTime;
-		}
+		isPaused = !isPaused;
 	};
 
 	// Вычисляемое свойство для прогресса
@@ -138,11 +119,6 @@
 			togglePlayPause();
 		}
 	};
-
-	// Lifecycle
-	onDestroy(() => {
-		stopAutoplay();
-	});
 
 	// Инициализируем автоплей только один раз когда появятся данные
 	let hasInitialized = $state(false);

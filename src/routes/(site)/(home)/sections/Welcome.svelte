@@ -10,7 +10,6 @@
 	// Состояние слайдера
 	let currentSlide = $state(0);
 	let isPaused = $state(false);
-	let sliderContainer: HTMLElement;
 
 	// Переменные для управления таймингом
 	let autoplayInterval: number | undefined = $state();
@@ -21,10 +20,13 @@
 	const progressDuration = 5000; // 5 секунд
 
 	// Функции для работы со слайдером
-	const nextSlide = () => {
+	const nextSlide = (isAutomatic = false) => {
 		if (upcomingData?.results) {
 			currentSlide = (currentSlide + 1) % upcomingData.results.length;
-			resetProgress();
+			// Сбрасываем прогресс только для ручного переключения
+			if (!isAutomatic) {
+				resetProgress();
+			}
 		}
 	};
 
@@ -43,6 +45,7 @@
 
 	// Функция для сброса прогресса
 	const resetProgress = () => {
+		stopAutoplay();
 		elapsedTime = 0;
 		isPausedTime = 0;
 		progressStartTime = Date.now();
@@ -51,7 +54,7 @@
 
 	// Автоплей с учетом паузы
 	const startAutoplay = () => {
-		if (autoplayInterval) clearInterval(autoplayInterval);
+		if (autoplayInterval) return; // Предотвращаем создание множественных интервалов
 
 		progressStartTime = Date.now();
 
@@ -62,7 +65,12 @@
 				elapsedTime = totalElapsed;
 
 				if (totalElapsed >= progressDuration) {
-					nextSlide();
+					// Автоматическое переключение без сброса прогресса
+					nextSlide(true);
+					// Сбрасываем прогресс после переключения
+					elapsedTime = 0;
+					isPausedTime = 0;
+					progressStartTime = Date.now();
 				}
 			}
 		}, 16); // ~60fps для плавности
@@ -71,6 +79,7 @@
 	const stopAutoplay = () => {
 		if (autoplayInterval) {
 			clearInterval(autoplayInterval);
+			autoplayInterval = undefined;
 		}
 	};
 
@@ -118,7 +127,7 @@
 		return text.substring(0, maxLength).trim() + '...';
 	};
 
-	// Управление слайдером с клавиатуры
+	// Управление слайдером с клавиатуры через svelte:window
 	const handleKeydown = (event: KeyboardEvent) => {
 		if (event.key === 'ArrowLeft') {
 			prevSlide();
@@ -131,32 +140,26 @@
 	};
 
 	// Lifecycle
-	onMount(() => {
-		document.addEventListener('keydown', handleKeydown);
-
-		// Инициализируем автоплей когда появятся данные
-		$effect(() => {
-			if (upcomingData?.results?.length) {
-				resetProgress();
-			}
-		});
-	});
-
 	onDestroy(() => {
 		stopAutoplay();
-		document.removeEventListener('keydown', handleKeydown);
 	});
 
-	// Рестарт автоплея при изменении слайда
+	// Инициализируем автоплей только один раз когда появятся данные
+	let hasInitialized = $state(false);
+
 	$effect(() => {
-		if (currentSlide !== undefined) {
+		if (upcomingData?.results?.length && !hasInitialized) {
+			hasInitialized = true;
 			resetProgress();
 		}
 	});
 </script>
 
+<!-- Обработка событий клавиатуры через svelte:window -->
+<svelte:window on:keydown={handleKeydown} />
+
 <section class="Welcome">
-	<div class="slider-container" bind:this={sliderContainer}>
+	<div class="slider-container">
 		<!-- Loading State -->
 		{#if isLoading}
 			<div class="slider-loading">
@@ -266,7 +269,7 @@
 					</button>
 					<button
 						class="nav-btn nav-btn--next"
-						onclick={nextSlide}
+						onclick={() => nextSlide()}
 						disabled={upcomingData.results.length <= 1}
 					>
 						<ChevronRight size={24} />

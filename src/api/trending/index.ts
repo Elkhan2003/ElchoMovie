@@ -1,14 +1,16 @@
 import { createQuery } from '@tanstack/svelte-query';
 import { api_tmdb } from '..';
 
-const useGetTradingsQuery = (date: Ref<TRADING.GetTradingsReq>) => {
+const useGetTrendingQuery = (date: TRADING.GetTradingsReq) => {
+	console.log(date);
+
 	return createQuery<TRADING.GetTradingsRes, Error>({
-		queryKey: computed(() => [`/trending/movie/${date.value}`]),
+		queryKey: [`/trending/movie/${date}`],
 		queryFn: async () => {
-			const response = await api_tmdb.get(`/trending/movie/${date.value}`);
+			const response = await api_tmdb.get(`/trending/movie/${date}`);
 			return response.data;
 		}
 	});
 };
 
-export { useGetTradingsQuery };
+export { useGetTrendingQuery };

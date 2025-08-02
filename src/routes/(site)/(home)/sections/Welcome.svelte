@@ -135,95 +135,95 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <section class="Welcome">
-	<div class="slider-container">
+	<div class="slider_container">
 		<!-- Loading State -->
 		{#if isLoading}
-			<div class="slider-loading">
-				<div class="loading-spinner"></div>
-				<p class="loading-text">Загружаем лучшие фильмы...</p>
+			<div class="slider_loading">
+				<div class="loading_spinner"></div>
+				<p class="loading_text">Загружаем лучшие фильмы...</p>
 			</div>
 		{:else if upcomingData?.results?.length}
 			<!-- Slider Content -->
-			<div class="slider-content">
+			<div class="slider_content">
 				<!-- Slides -->
 				{#each upcomingData.results as movie, index (movie.id)}
 					<div class="slide" class:slide--active={index === currentSlide}>
 						<!-- Background Image -->
-						<div class="slide-bg">
+						<div class="slide_bg">
 							<img
 								src={getBackdropUrl(movie.backdrop_path)}
 								alt={movie.title}
-								class="slide-bg-image"
+								class="slide_bg_image"
 							/>
-							<div class="slide-gradient"></div>
+							<div class="slide_gradient"></div>
 						</div>
 
 						<!-- Content -->
 						<div class="container">
-							<div class="slide-content">
-								<div class="slide-info">
-									<div class="slide-meta">
-										<span class="slide-type">Фильм</span>
-										<span class="slide-age">18+</span>
-										<span class="slide-year"
+							<div class="slide_content">
+								<div class="slide_info">
+									<div class="slide_meta">
+										<span class="slide_type">Фильм</span>
+										<span class="slide_age">18+</span>
+										<span class="slide_year"
 											>{formatYear(movie.release_date)}</span
 										>
-										<span class="slide-country">США</span>
-										<span class="slide-duration">2ч 15мин</span>
+										<span class="slide_country">США</span>
+										<span class="slide_duration">2ч 15мин</span>
 									</div>
 
-									<h1 class="slide-title">{movie.title}</h1>
+									<h1 class="slide_title">{movie.title}</h1>
 
-									<p class="slide-description">
+									<p class="slide_description">
 										{truncateText(movie.overview)}
 									</p>
 
-									<div class="slide-rating">
-										<div class="rating-score">
+									<div class="slide_rating">
+										<div class="rating_score">
 											<span
-												class="rating-number"
+												class="rating_number"
 												style:color={getRatingColor(movie.vote_average)}
 											>
 												{movie.vote_average.toFixed(1)}
 											</span>
 										</div>
-										<div class="rating-sources">
-											<div class="rating-source">
-												<span class="rating-icon">🎬</span>
-												<span class="rating-value"
+										<div class="rating_sources">
+											<div class="rating_source">
+												<span class="rating_icon">🎬</span>
+												<span class="rating_value"
 													>{movie.vote_average.toFixed(1)}</span
 												>
 											</div>
-											<div class="rating-source">
-												<span class="rating-icon">⭐</span>
-												<span class="rating-value"
+											<div class="rating_source">
+												<span class="rating_icon">⭐</span>
+												<span class="rating_value"
 													>{(movie.vote_average * 0.9).toFixed(1)}</span
 												>
 											</div>
 										</div>
 									</div>
 
-									<div class="slide-actions">
+									<div class="slide_actions">
 										<button class="btn btn--primary">
-											<Play class="btn-icon" size={20} />
+											<Play class="btn_icon" size={20} />
 											Перейти к фильму
 										</button>
 										<button class="btn btn--secondary">
-											<Star class="btn-icon" size={20} />
+											<Star class="btn_icon" size={20} />
 											В избранное
 										</button>
 									</div>
 								</div>
 
-								<div class="slide-poster">
-									<div class="poster-container">
+								<div class="slide_poster">
+									<div class="poster_container">
 										<img
 											src={getPosterUrl(movie.poster_path)}
 											alt={movie.title}
-											class="poster-image"
+											class="poster_image"
 										/>
-										<div class="poster-overlay">
-											<button class="play-btn">
+										<div class="poster_overlay">
+											<button class="play_btn">
 												<Play size={30} />
 											</button>
 										</div>
@@ -235,16 +235,16 @@
 				{/each}
 
 				<!-- Navigation -->
-				<div class="slider-nav">
+				<div class="slider_nav">
 					<button
-						class="nav-btn nav-btn--prev"
+						class="nav_btn"
 						onclick={prevSlide}
 						disabled={upcomingData.results.length <= 1}
 					>
 						<ChevronLeft size={24} />
 					</button>
 					<button
-						class="nav-btn nav-btn--next"
+						class="nav_btn"
 						onclick={() => nextSlide()}
 						disabled={upcomingData.results.length <= 1}
 					>
@@ -253,7 +253,7 @@
 				</div>
 
 				<!-- Dots Pagination -->
-				<div class="slider-dots">
+				<div class="slider_dots">
 					{#each upcomingData.results as _, index (index)}
 						<button
 							class="dot"
@@ -265,9 +265,9 @@
 				</div>
 
 				<!-- Progress Bar -->
-				<div class="slider-progress">
+				<div class="slider_progress">
 					<div
-						class="progress-bar"
+						class="progress_bar"
 						style:width="{progressPercentage()}%"
 						style:transition={isPaused ? 'none' : 'width 16ms linear'}
 					></div>
@@ -275,7 +275,7 @@
 
 				<!-- Play/Pause Control -->
 				<button
-					class="play-pause-btn"
+					class="play_pause_btn"
 					onclick={togglePlayPause}
 					title={isPaused ? 'Воспроизвести' : 'Пауза'}
 				>
@@ -288,16 +288,16 @@
 			</div>
 		{:else}
 			<!-- Empty State -->
-			<div class="slider-empty">
-				<div class="empty-icon">🎬</div>
-				<p class="empty-text">Нет доступных фильмов</p>
+			<div class="slider_empty">
+				<div class="empty_icon">🎬</div>
+				<p class="empty_text">Нет доступных фильмов</p>
 			</div>
 		{/if}
 	</div>
 
 	<!-- Background Effects -->
-	<div class="hero-bg-effects">
-		<div class="hero-gradient"></div>
+	<div class="hero_bg_effects">
+		<div class="hero_gradient"></div>
 	</div>
 </section>
 
@@ -309,14 +309,14 @@
 		overflow: hidden;
 		background: #1a1a2e;
 
-		.slider-container {
+		.slider_container {
 			position: relative;
 			height: 100%;
 			width: 100%;
 		}
 
 		// Loading State
-		.slider-loading {
+		.slider_loading {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -324,7 +324,7 @@
 			height: 100%;
 			gap: 2rem;
 
-			.loading-spinner {
+			.loading_spinner {
 				width: 60px;
 				height: 60px;
 				border: 4px solid rgba(139, 92, 246, 0.1);
@@ -333,7 +333,7 @@
 				animation: spin 1s linear infinite;
 			}
 
-			.loading-text {
+			.loading_text {
 				color: rgba(255, 255, 255, 0.8);
 				font-size: 1.2rem;
 				font-weight: 500;
@@ -360,7 +360,7 @@
 				transform: scale(1);
 			}
 
-			.slide-bg {
+			.slide_bg {
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -368,14 +368,14 @@
 				bottom: 0;
 				z-index: 1;
 
-				.slide-bg-image {
+				.slide_bg_image {
 					width: 100%;
 					height: 100%;
 					object-fit: cover;
 					object-position: center;
 				}
 
-				.slide-gradient {
+				.slide_gradient {
 					position: absolute;
 					top: 0;
 					left: 0;
@@ -391,7 +391,7 @@
 				}
 			}
 
-			.slide-content {
+			.slide_content {
 				position: relative;
 				z-index: 2;
 				height: 100%;
@@ -407,11 +407,11 @@
 				}
 			}
 
-			.slide-info {
+			.slide_info {
 				flex: 1;
 				max-width: 600px;
 
-				.slide-meta {
+				.slide_meta {
 					display: flex;
 					align-items: center;
 					gap: 1rem;
@@ -432,14 +432,14 @@
 						font-weight: 500;
 					}
 
-					.slide-type {
+					.slide_type {
 						background: linear-gradient(45deg, #8b5cf6, #a855f7);
 						color: white;
 						border-color: transparent;
 					}
 				}
 
-				.slide-title {
+				.slide_title {
 					font-size: clamp(2.5rem, 5vw, 4rem);
 					font-weight: 800;
 					color: white;
@@ -447,14 +447,14 @@
 					line-height: 1.1;
 				}
 
-				.slide-description {
+				.slide_description {
 					font-size: 1.1rem;
 					line-height: 1.6;
 					color: rgba(255, 255, 255, 0.8);
 					margin-bottom: 2rem;
 				}
 
-				.slide-rating {
+				.slide_rating {
 					display: flex;
 					align-items: center;
 					gap: 2rem;
@@ -464,18 +464,18 @@
 						justify-content: center;
 					}
 
-					.rating-score {
-						.rating-number {
+					.rating_score {
+						.rating_number {
 							font-size: 2rem;
 							font-weight: 700;
 						}
 					}
 
-					.rating-sources {
+					.rating_sources {
 						display: flex;
 						gap: 1rem;
 
-						.rating-source {
+						.rating_source {
 							display: flex;
 							align-items: center;
 							gap: 0.5rem;
@@ -483,11 +483,11 @@
 							background: rgba(255, 255, 255, 0.1);
 							border-radius: 15px;
 
-							.rating-icon {
+							.rating_icon {
 								font-size: 1.2rem;
 							}
 
-							.rating-value {
+							.rating_value {
 								color: rgba(255, 255, 255, 0.9);
 								font-weight: 600;
 							}
@@ -495,7 +495,7 @@
 					}
 				}
 
-				.slide-actions {
+				.slide_actions {
 					display: flex;
 					gap: 1rem;
 					flex-wrap: wrap;
@@ -515,10 +515,6 @@
 						border: none;
 						cursor: pointer;
 						transition: all 0.3s ease;
-
-						:global(.btn-icon) {
-							flex-shrink: 0;
-						}
 
 						&--primary {
 							background: linear-gradient(45deg, #8b5cf6, #a855f7);
@@ -544,14 +540,14 @@
 				}
 			}
 
-			.slide-poster {
+			.slide_poster {
 				flex: 0 0 auto;
 
 				@media (max-width: 1024px) {
 					order: -1;
 				}
 
-				.poster-container {
+				.poster_container {
 					position: relative;
 					width: 300px;
 					aspect-ratio: 2/3;
@@ -571,18 +567,18 @@
 					&:hover {
 						border-color: rgba(139, 92, 246, 0.6);
 
-						.poster-overlay {
+						.poster_overlay {
 							opacity: 1;
 						}
 					}
 
-					.poster-image {
+					.poster_image {
 						width: 100%;
 						height: 100%;
 						object-fit: cover;
 					}
 
-					.poster-overlay {
+					.poster_overlay {
 						position: absolute;
 						top: 0;
 						left: 0;
@@ -599,7 +595,7 @@
 						opacity: 0;
 						transition: opacity 0.3s ease;
 
-						.play-btn {
+						.play_btn {
 							width: 80px;
 							height: 80px;
 							background: rgba(255, 255, 255, 0.2);
@@ -622,7 +618,7 @@
 		}
 
 		// Navigation
-		.slider-nav {
+		.slider_nav {
 			position: absolute;
 			top: 50%;
 			left: 0;
@@ -634,7 +630,7 @@
 			transform: translateY(-50%);
 			pointer-events: none;
 
-			.nav-btn {
+			.nav_btn {
 				pointer-events: all;
 				width: 60px;
 				height: 60px;
@@ -661,17 +657,12 @@
 				@media (max-width: 768px) {
 					width: 50px;
 					height: 50px;
-
-					:global(svg) {
-						width: 20px;
-						height: 20px;
-					}
 				}
 			}
 		}
 
 		// Dots Pagination
-		.slider-dots {
+		.slider_dots {
 			position: absolute;
 			bottom: 2rem;
 			left: 50%;
@@ -700,7 +691,7 @@
 		}
 
 		// Progress Bar
-		.slider-progress {
+		.slider_progress {
 			position: absolute;
 			bottom: 0;
 			left: 0;
@@ -709,7 +700,7 @@
 			background: rgba(255, 255, 255, 0.1);
 			z-index: 10;
 
-			.progress-bar {
+			.progress_bar {
 				height: 100%;
 				background: linear-gradient(45deg, #8b5cf6, #a855f7);
 				width: 0;
@@ -717,7 +708,7 @@
 		}
 
 		// Play/Pause Control
-		.play-pause-btn {
+		.play_pause_btn {
 			position: absolute;
 			top: 7rem;
 			right: 2rem;
@@ -741,7 +732,7 @@
 		}
 
 		// Empty State
-		.slider-empty {
+		.slider_empty {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -749,19 +740,19 @@
 			height: 100%;
 			gap: 2rem;
 
-			.empty-icon {
+			.empty_icon {
 				font-size: 4rem;
 				opacity: 0.5;
 			}
 
-			.empty-text {
+			.empty_text {
 				color: rgba(255, 255, 255, 0.7);
 				font-size: 1.2rem;
 			}
 		}
 
 		// Background Effects
-		.hero-bg-effects {
+		.hero_bg_effects {
 			position: absolute;
 			top: 0;
 			left: 0;
@@ -770,7 +761,7 @@
 			pointer-events: none;
 			z-index: 0;
 
-			.hero-gradient {
+			.hero_gradient {
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -809,20 +800,20 @@
 			height: 80vh;
 			min-height: 500px;
 
-			.slider-nav {
+			.slider_nav {
 				padding: 0 1rem;
 			}
 
-			.slide .slide-content {
+			.slide .slide_content {
 				padding: 1rem 0;
 				gap: 1.5rem;
 			}
 
-			.slide .slide-info .slide-title {
+			.slide .slide_info .slide_title {
 				font-size: clamp(2rem, 8vw, 3rem);
 			}
 
-			.slide .slide-info .slide-actions {
+			.slide .slide_info .slide_actions {
 				justify-content: center;
 			}
 		}
@@ -833,16 +824,16 @@
 			height: 70vh;
 			min-height: 400px;
 
-			.slide .slide-info .slide-description {
+			.slide .slide_info .slide_description {
 				font-size: 1rem;
 			}
 
-			.slide .slide-info .slide-actions .btn {
+			.slide .slide_info .slide_actions .btn {
 				padding: 0.75rem 1.5rem;
 				font-size: 0.9rem;
 			}
 
-			.slide .slide-info .slide-rating {
+			.slide .slide_info .slide_rating {
 				flex-direction: column;
 				gap: 1rem;
 				align-items: flex-start;

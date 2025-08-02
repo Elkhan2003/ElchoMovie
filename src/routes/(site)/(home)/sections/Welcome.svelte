@@ -1,6 +1,6 @@
-<!-- src/components/shared/Welcome.svelte -->
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { Play, Star, ChevronLeft, ChevronRight, Pause } from '@lucide/svelte';
 	import { useGetUpcomingQuery } from '../../../../api/upcoming';
 
 	// Queries
@@ -13,7 +13,7 @@
 	let sliderContainer: HTMLElement;
 
 	// Переменные для управления таймингом
-	let autoplayInterval: NodeJS.Timeout | undefined = $state();
+	let autoplayInterval: number | undefined = $state();
 	let progressStartTime = $state(0);
 	let elapsedTime = $state(0);
 	let isPausedTime = $state(0);
@@ -226,25 +226,11 @@
 
 									<div class="slide-actions">
 										<button class="btn btn--primary">
-											<svg
-												class="btn-icon"
-												viewBox="0 0 24 24"
-												fill="currentColor"
-											>
-												<path d="M8 5v14l11-7z" />
-											</svg>
+											<Play class="btn-icon" size={20} />
 											Перейти к фильму
 										</button>
 										<button class="btn btn--secondary">
-											<svg
-												class="btn-icon"
-												viewBox="0 0 24 24"
-												fill="currentColor"
-											>
-												<path
-													d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-												/>
-											</svg>
+											<Star class="btn-icon" size={20} />
 											В избранное
 										</button>
 									</div>
@@ -259,9 +245,7 @@
 										/>
 										<div class="poster-overlay">
 											<button class="play-btn">
-												<svg viewBox="0 0 24 24" fill="currentColor">
-													<path d="M8 5v14l11-7z" />
-												</svg>
+												<Play size={30} />
 											</button>
 										</div>
 									</div>
@@ -278,18 +262,14 @@
 						onclick={prevSlide}
 						disabled={upcomingData.results.length <= 1}
 					>
-						<svg viewBox="0 0 24 24" fill="currentColor">
-							<path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-						</svg>
+						<ChevronLeft size={24} />
 					</button>
 					<button
 						class="nav-btn nav-btn--next"
 						onclick={nextSlide}
 						disabled={upcomingData.results.length <= 1}
 					>
-						<svg viewBox="0 0 24 24" fill="currentColor">
-							<path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-						</svg>
+						<ChevronRight size={24} />
 					</button>
 				</div>
 
@@ -321,13 +301,9 @@
 					title={isPaused ? 'Воспроизвести' : 'Пауза'}
 				>
 					{#if isPaused}
-						<svg viewBox="0 0 24 24" fill="currentColor">
-							<path d="M8 5v14l11-7z" />
-						</svg>
+						<Play size={20} />
 					{:else}
-						<svg viewBox="0 0 24 24" fill="currentColor">
-							<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-						</svg>
+						<Pause size={20} />
 					{/if}
 				</button>
 			</div>
@@ -561,9 +537,8 @@
 						cursor: pointer;
 						transition: all 0.3s ease;
 
-						.btn-icon {
-							width: 20px;
-							height: 20px;
+						:global(.btn-icon) {
+							flex-shrink: 0;
 						}
 
 						&--primary {
@@ -658,12 +633,6 @@
 							cursor: pointer;
 							transition: all 0.3s ease;
 
-							svg {
-								width: 30px;
-								height: 30px;
-								margin-left: 4px;
-							}
-
 							&:hover {
 								background: rgba(255, 255, 255, 0.3);
 							}
@@ -700,11 +669,6 @@
 				align-items: center;
 				justify-content: center;
 
-				svg {
-					width: 24px;
-					height: 24px;
-				}
-
 				&:hover:not(:disabled) {
 					background: #8b5cf6;
 					border-color: #8b5cf6;
@@ -719,7 +683,7 @@
 					width: 50px;
 					height: 50px;
 
-					svg {
+					:global(svg) {
 						width: 20px;
 						height: 20px;
 					}
@@ -790,11 +754,6 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
-
-			svg {
-				width: 20px;
-				height: 20px;
-			}
 
 			&:hover {
 				background: #8b5cf6;

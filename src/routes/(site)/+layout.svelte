@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	import Footer from '../../components/layout/Footer.svelte';
 	import Header from '../../components/layout/Header.svelte';
 
@@ -7,7 +8,7 @@
 
 <div class="layout">
 	<Header />
-	<main>
+	<main class="main" class:active={page.url.pathname === '/'}>
 		{@render children()}
 	</main>
 	<Footer />
@@ -19,8 +20,11 @@
 		flex-direction: column;
 		justify-content: space-between;
 		min-height: 100vh;
-		footer {
-			margin-top: auto;
+		.main {
+			&.active {
+				position: relative;
+				top: -80px;
+			}
 		}
 	}
 </style>

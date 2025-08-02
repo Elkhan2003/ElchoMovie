@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/vue-query';
+import { createQuery } from '@tanstack/svelte-query';
 import { computed, type Ref } from 'vue';
 import { api_tmdb } from '..';
 
@@ -10,7 +10,7 @@ const useGetSearchQuery = (
 	params: Ref<SEARCH.GetSearchReq>,
 	options?: UseGetSearchQueryOptions
 ) => {
-	return useQuery<SEARCH.GetSearchRes, Error>({
+	return createQuery<SEARCH.GetSearchRes, Error>({
 		queryKey: computed(() => [
 			'search',
 			params.value.search,

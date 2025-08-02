@@ -1,8 +1,5 @@
 <script lang="ts">
-	import {
-		useDeleteTodoMutation,
-		useGetTodosQuery
-	} from '../../../../api/todo';
+	import { useDeleteTodoMutation, useGetTodosQuery } from '../../api/todo';
 
 	let deletingId = $state<number | null>(null);
 

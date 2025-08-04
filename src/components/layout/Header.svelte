@@ -94,16 +94,6 @@
 		padding: 1rem 0;
 		overflow: hidden;
 
-		&::before {
-			content: '';
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			pointer-events: none;
-		}
-
 		.content {
 			display: flex;
 			gap: 30px;
@@ -121,6 +111,11 @@
 				font-weight: bold;
 				font-size: 1.5rem;
 
+				// Применяем hover эффект к иконке при наведении на весь логотип
+				&:hover .logo_icon {
+					transform: scale(1.1) rotate(5deg);
+				}
+
 				.logo_icon {
 					width: 40px;
 					height: 40px;
@@ -132,10 +127,6 @@
 					color: white;
 					box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 					transition: transform 0.3s ease;
-
-					&:hover {
-						transform: scale(1.1) rotate(5deg);
-					}
 				}
 
 				.logo_text {

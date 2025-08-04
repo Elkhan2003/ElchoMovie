@@ -55,12 +55,12 @@
 		<div class="content">
 			<!-- Основная информация -->
 			<div class="footer_section footer_section--main">
-				<div class="footer_logo">
+				<a href="/" class="logo">
 					<div class="logo_icon">
 						<Film size={32} />
 					</div>
 					<span class="logo_text">KinoDev</span>
-				</div>
+				</a>
 				<p class="footer_description">
 					Ваш идеальный спутник в мире кино и сериалов. Откройте для себя новые
 					горизонты развлечений.
@@ -192,14 +192,22 @@
 
 			.footer_section {
 				&--main {
-					.footer_logo {
+					display: flex;
+					flex-direction: column;
+					align-items: flex-start;
+					.logo {
+						margin-bottom: 1.5rem;
 						display: flex;
 						align-items: center;
 						gap: 0.75rem;
-						margin-bottom: 1.5rem;
+						text-decoration: none;
+						color: white;
+						font-weight: bold;
+						font-size: 1.5rem;
 
-						@media (max-width: 768px) {
-							justify-content: center;
+						// Применяем hover эффект к иконке при наведении на весь логотип
+						&:hover .logo_icon {
+							transform: scale(1.1) rotate(5deg);
 						}
 
 						.logo_icon {
@@ -213,10 +221,6 @@
 							color: white;
 							box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
 							transition: transform 0.3s ease;
-
-							&:hover {
-								transform: scale(1.1) rotate(5deg);
-							}
 						}
 
 						.logo_text {
@@ -224,8 +228,6 @@
 							-webkit-background-clip: text;
 							-webkit-text-fill-color: transparent;
 							background-clip: text;
-							font-size: 1.5rem;
-							font-weight: bold;
 						}
 					}
 

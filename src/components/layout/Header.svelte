@@ -36,7 +36,7 @@
 				<div class="logo_icon">
 					<Film size={32} />
 				</div>
-				<span class="logo_text">CinemaHub</span>
+				<span class="logo_text">KinoDev</span>
 			</a>
 
 			<!-- Навигация -->

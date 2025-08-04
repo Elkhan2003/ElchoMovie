@@ -118,7 +118,7 @@
 					<MovieList
 						items={sortedTrendingData()}
 						loading={isLoadingTrending}
-						maxOverviewLength={100}
+						maxOverviewLength={80}
 					/>
 				{/if}
 			</div>
@@ -196,7 +196,12 @@
 					background: rgba(255, 255, 255, 0.08);
 					border-radius: 50px;
 					backdrop-filter: blur(10px);
-					border: 1px solid rgba(139, 92, 246, 0.2);
+					transition: all 0.3s ease;
+
+					&:hover {
+						border-color: rgba(139, 92, 246, 0.3);
+						background: rgba(255, 255, 255, 0.12);
+					}
 
 					.rating_sort_label {
 						display: flex;
@@ -263,6 +268,12 @@
 					padding: 5px;
 					backdrop-filter: blur(10px);
 					border: 1px solid rgba(139, 92, 246, 0.2);
+					transition: all 0.3s ease;
+
+					&:hover {
+						border-color: rgba(139, 92, 246, 0.3);
+						background: rgba(255, 255, 255, 0.12);
+					}
 
 					.date_switcher_btn {
 						background: transparent;

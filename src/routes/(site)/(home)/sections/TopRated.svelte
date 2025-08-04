@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { Star } from '@lucide/svelte';
-	import { useGetPopularQuery } from '../../../../api/popular';
+	import { useGetTopRatedQuery } from '../../../../api/top-rated';
 	import MovieList from '../../../../components/shared/MovieList.svelte';
 
 	let typeSwitcher = $state<'movie' | 'tv'>('movie');
 	let sortRatingDesc = $state<boolean>(true);
 
-	const popularQuery = $derived(useGetPopularQuery(typeSwitcher));
+	const topRatedQuery = $derived(useGetTopRatedQuery(typeSwitcher));
 	const {
-		data: popularData,
-		isLoading: isLoadingPopular,
-		error: isErrorPopular
-	} = $derived($popularQuery);
+		data: topRatedData,
+		isLoading: isLoadingTopRated,
+		error: isErrorTopRated
+	} = $derived($topRatedQuery);
 
-	const sortedPopularData = $derived(() => {
-		if (!popularData?.results) return [];
+	const sortedTopRatedData = $derived(() => {
+		if (!topRatedData?.results) return [];
 
-		const results = popularData.results.map((item) => ({
+		const results = topRatedData.results.map((item) => ({
 			...item,
 			media_type: typeSwitcher
 		}));
@@ -55,17 +55,19 @@
 	};
 </script>
 
-<section class="popular">
+<section class="top_ated">
 	<div class="container">
-		<div class="popular_content">
+		<div class="top_ated_content">
 			<!-- Header Section -->
-			<div class="popular_header">
-				<div class="popular_title_section">
-					<h1 class="popular_title">What's Popular</h1>
-					<p class="popular_subtitle">Most loved content by audiences</p>
+			<div class="top_ated_header">
+				<div class="top_ated_title_section">
+					<h1 class="top_ated_title">Top Rated</h1>
+					<p class="top_ated_subtitle">
+						Highest rated content by critics and audiences
+					</p>
 				</div>
 
-				<div class="popular_controls">
+				<div class="top_ated_controls">
 					<!-- Rating Sort Switch -->
 					<div class="rating_sort">
 						<div class="rating_sort_label">
@@ -105,12 +107,12 @@
 			</div>
 
 			<!-- Content Section -->
-			<div class="popular_main">
+			<div class="top_ated_main">
 				<!-- Error State -->
-				{#if isErrorPopular}
-					<div class="popular_error">
+				{#if isErrorTopRated}
+					<div class="top_ated_error">
 						<div class="error_icon">⚠️</div>
-						<p class="error_text">Failed to load popular content</p>
+						<p class="error_text">Failed to load top_ated content</p>
 						<button class="error_retry_btn" onclick={handleReload}>
 							Try Again
 						</button>
@@ -118,8 +120,8 @@
 				{:else}
 					<!-- Movie List Component -->
 					<MovieList
-						items={sortedPopularData()}
-						loading={isLoadingPopular}
+						items={sortedTopRatedData()}
+						loading={isLoadingTopRated}
 						maxOverviewLength={80}
 					/>
 				{/if}
@@ -129,17 +131,17 @@
 </section>
 
 <style lang="scss">
-	.popular {
+	.top_ated {
 		position: relative;
 		padding: 30px 0;
 		overflow: hidden;
 
-		.popular_content {
+		.top_ated_content {
 			position: relative;
 			z-index: 10;
 		}
 
-		.popular_header {
+		.top_ated_header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
@@ -153,8 +155,8 @@
 				text-align: center;
 			}
 
-			.popular_title_section {
-				.popular_title {
+			.top_ated_title_section {
+				.top_ated_title {
 					display: flex;
 					align-items: center;
 					gap: 1rem;
@@ -172,14 +174,14 @@
 					}
 				}
 
-				.popular_subtitle {
+				.top_ated_subtitle {
 					color: rgba(255, 255, 255, 0.7);
 					font-size: 1.1rem;
 					margin: 0;
 				}
 			}
 
-			.popular_controls {
+			.top_ated_controls {
 				display: flex;
 				align-items: center;
 				gap: 1.5rem;
@@ -327,8 +329,8 @@
 			}
 		}
 
-		.popular_main {
-			.popular_error {
+		.top_ated_main {
+			.top_ated_error {
 				display: flex;
 				flex-direction: column;
 				align-items: center;

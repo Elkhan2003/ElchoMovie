@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { Play, Star, ChevronLeft, ChevronRight, Pause } from '@lucide/svelte';
+	import {
+		Play,
+		Star,
+		ChevronLeft,
+		ChevronRight,
+		Pause,
+		Calendar,
+		Clock,
+		Globe
+	} from '@lucide/svelte';
 	import { useGetUpcomingQuery } from '../../../../api/upcoming';
 
 	// Queries
@@ -9,8 +18,9 @@
 	// Состояние слайдера
 	let currentSlide = $state(0);
 	let isPaused = $state(false);
+	let isHovered = $state(false);
 
-	// Переменные для управления таймингом
+	// Переменные для управления timer
 	let autoplayInterval: number | undefined = $state();
 	let elapsedTime = $state(0);
 
@@ -48,18 +58,16 @@
 		startAutoplay();
 	};
 
-	// Автоплей с учетом паузы
+	// Autoplay с учетом паузы и ховера
 	const startAutoplay = () => {
-		if (autoplayInterval) return; // Предотвращаем создание множественных интервалов
+		if (autoplayInterval) return;
 
 		autoplayInterval = setInterval(() => {
-			if (!isPaused) {
+			if (!isPaused && !isHovered) {
 				elapsedTime += intervalStep;
 
 				if (elapsedTime >= progressDuration) {
-					// Автоматическое переключение без сброса прогресса
 					nextSlide(true);
-					// Сбрасываем прогресс после переключения
 					elapsedTime = 0;
 				}
 			}
@@ -76,6 +84,15 @@
 	// Функция для обработки паузы/воспроизведения
 	const togglePlayPause = () => {
 		isPaused = !isPaused;
+	};
+
+	// Обработчики для hover эффектов
+	const handleMouseEnter = () => {
+		isHovered = true;
+	};
+
+	const handleMouseLeave = () => {
+		isHovered = false;
 	};
 
 	// Вычисляемое свойство для прогресса
@@ -108,7 +125,30 @@
 		return text.substring(0, maxLength).trim() + '...';
 	};
 
-	// Управление слайдером с клавиатуры через svelte:window
+	const getRandomDuration = () => {
+		const hours = Math.floor(Math.random() * 2) + 1;
+		const minutes = Math.floor(Math.random() * 60);
+		return `${hours}ч ${minutes}мин`;
+	};
+
+	const getRandomCountry = () => {
+		const countries = [
+			'США',
+			'Великобритания',
+			'Франция',
+			'Германия',
+			'Япония',
+			'Корея'
+		];
+		return countries[Math.floor(Math.random() * countries.length)];
+	};
+
+	const getRandomAgeRating = () => {
+		const ratings = ['12+', '16+', '18+', '6+'];
+		return ratings[Math.floor(Math.random() * ratings.length)];
+	};
+
+	// Управление слайдером с клавиатуры
 	const handleKeydown = (event: KeyboardEvent) => {
 		if (event.key === 'ArrowLeft') {
 			prevSlide();
@@ -134,7 +174,12 @@
 <!-- Обработка событий клавиатуры через svelte:window -->
 <svelte:window on:keydown={handleKeydown} />
 
-<section class="Welcome">
+<section
+	class="Welcome"
+	aria-label="Слайдер с популярными фильмами"
+	onmouseenter={handleMouseEnter}
+	onmouseleave={handleMouseLeave}
+>
 	<div class="slider_container">
 		<!-- Loading State -->
 		{#if isLoading}
@@ -163,16 +208,32 @@
 							<div class="slide_content">
 								<div class="slide_info">
 									<div class="slide_meta">
-										<span class="slide_type">Фильм</span>
-										<span class="slide_age">18+</span>
-										<span class="slide_year"
-											>{formatYear(movie.release_date)}</span
-										>
-										<span class="slide_country">США</span>
-										<span class="slide_duration">2ч 15мин</span>
+										<span>
+											<Calendar size={16} />
+											Фильм
+										</span>
+										<span>
+											<Calendar size={16} />
+											{getRandomAgeRating()}
+										</span>
+										<span>
+											<Calendar size={16} />
+											{formatYear(movie.release_date)}
+										</span>
+										<span>
+											<Globe size={16} />
+											{getRandomCountry()}
+										</span>
+										<span>
+											<Clock size={16} />
+											{getRandomDuration()}
+										</span>
 									</div>
 
-									<h1 class="slide_title">{movie.title}</h1>
+									<h1 class="slide_title">
+										<span class="slide_title_text">{movie.title}</span>
+										<div class="slide_title_underline"></div>
+									</h1>
 
 									<p class="slide_description">
 										{truncateText(movie.overview)}
@@ -186,31 +247,46 @@
 											>
 												{movie.vote_average.toFixed(1)}
 											</span>
+											<div class="rating_stars">
+												{#each Array(5) as _, i}
+													<span
+														class="rating_star"
+														class:rating_star--filled={i <
+															Math.floor(movie.vote_average / 2)}
+													>
+														<Star size={16} />
+													</span>
+												{/each}
+											</div>
 										</div>
 										<div class="rating_sources">
 											<div class="rating_source">
 												<span class="rating_icon">🎬</span>
-												<span class="rating_value"
-													>{movie.vote_average.toFixed(1)}</span
-												>
+												<span class="rating_label">TMDB</span>
+												<span class="rating_value">
+													{movie.vote_average.toFixed(1)}
+												</span>
 											</div>
 											<div class="rating_source">
 												<span class="rating_icon">⭐</span>
-												<span class="rating_value"
-													>{(movie.vote_average * 0.9).toFixed(1)}</span
-												>
+												<span class="rating_label">IMDb</span>
+												<span class="rating_value">
+													{(movie.vote_average * 0.9).toFixed(1)}
+												</span>
 											</div>
 										</div>
 									</div>
 
 									<div class="slide_actions">
 										<button class="btn btn--primary">
-											<Play class="btn_icon" size={20} />
-											Перейти к фильму
+											<Play size={20} />
+											<span class="btn_text">Перейти к фильму</span>
+											<div class="btn_ripple"></div>
 										</button>
 										<button class="btn btn--secondary">
-											<Star class="btn_icon" size={20} />
-											В избранное
+											<Star size={20} />
+											<span class="btn_text">В избранное</span>
+											<div class="btn_ripple"></div>
 										</button>
 									</div>
 								</div>
@@ -225,8 +301,10 @@
 										<div class="poster_overlay">
 											<button class="play_btn">
 												<Play size={30} />
+												<div class="play_btn_ripple"></div>
 											</button>
 										</div>
+										<div class="poster_glow"></div>
 									</div>
 								</div>
 							</div>
@@ -242,6 +320,7 @@
 						disabled={upcomingData.results.length <= 1}
 					>
 						<ChevronLeft size={24} />
+						<div class="nav_btn_ripple"></div>
 					</button>
 					<button
 						class="nav_btn"
@@ -249,6 +328,7 @@
 						disabled={upcomingData.results.length <= 1}
 					>
 						<ChevronRight size={24} />
+						<div class="nav_btn_ripple"></div>
 					</button>
 				</div>
 
@@ -260,7 +340,9 @@
 							class:dot--active={index === currentSlide}
 							onclick={() => goToSlide(index)}
 							aria-label="Перейти к слайду {index + 1}"
-						></button>
+						>
+							<div class="dot_inner"></div>
+						</button>
 					{/each}
 				</div>
 
@@ -269,13 +351,18 @@
 					<div
 						class="progress_bar"
 						style:width="{progressPercentage()}%"
-						style:transition={isPaused ? 'none' : 'width 16ms linear'}
-					></div>
+						style:transition={isPaused || isHovered
+							? 'none'
+							: 'width 16ms linear'}
+					>
+						<div class="progress_glow"></div>
+					</div>
 				</div>
 
 				<!-- Play/Pause Control -->
 				<button
 					class="play_pause_btn"
+					class:play_pause_btn--paused={isPaused}
 					onclick={togglePlayPause}
 					title={isPaused ? 'Воспроизвести' : 'Пауза'}
 				>
@@ -284,6 +371,7 @@
 					{:else}
 						<Pause size={20} />
 					{/if}
+					<div class="play_pause_ripple"></div>
 				</button>
 			</div>
 		{:else}
@@ -291,6 +379,7 @@
 			<div class="slider_empty">
 				<div class="empty_icon">🎬</div>
 				<p class="empty_text">Нет доступных фильмов</p>
+				<div class="empty_decoration"></div>
 			</div>
 		{/if}
 	</div>
@@ -298,6 +387,7 @@
 	<!-- Background Effects -->
 	<div class="hero_bg_effects">
 		<div class="hero_gradient"></div>
+		<div class="hero_particles"></div>
 	</div>
 </section>
 
@@ -315,7 +405,7 @@
 			width: 100%;
 		}
 
-		// Loading State
+		// Loading State - Moved out of .slider_content nesting
 		.slider_loading {
 			display: flex;
 			flex-direction: column;
@@ -337,203 +427,323 @@
 				color: rgba(255, 255, 255, 0.8);
 				font-size: 1.2rem;
 				font-weight: 500;
+				animation: pulse 2s ease-in-out infinite;
 			}
 		}
 
-		// Slides
-		.slide {
-			position: absolute;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
-			opacity: 0;
-			visibility: hidden;
-			transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-			transform: scale(1.05);
-			display: flex;
-			align-items: center;
-
-			&--active {
-				opacity: 1;
-				visibility: visible;
-				transform: scale(1);
-			}
-
-			.slide_bg {
+		.slider_content {
+			// Slides
+			.slide {
 				position: absolute;
 				top: 0;
 				left: 0;
 				right: 0;
 				bottom: 0;
-				z-index: 1;
+				opacity: 0;
+				visibility: hidden;
+				transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+				transform: scale(1.05);
+				display: flex;
+				align-items: center;
 
-				.slide_bg_image {
-					width: 100%;
-					height: 100%;
-					object-fit: cover;
-					object-position: center;
+				&--active {
+					opacity: 1;
+					visibility: visible;
+					transform: scale(1);
+
+					.slide_title_text {
+						animation: slideInUp 1s ease-out 0.3s both;
+					}
+
+					.slide_title_underline {
+						animation: slideInRight 1s ease-out 0.5s both;
+					}
+
+					.slide_description {
+						animation: slideInUp 1s ease-out 0.4s both;
+					}
+
+					.slide_actions {
+						animation: slideInUp 1s ease-out 0.5s both;
+					}
 				}
 
-				.slide_gradient {
+				.slide_bg {
 					position: absolute;
 					top: 0;
 					left: 0;
 					right: 0;
 					bottom: 0;
-					background: linear-gradient(
-							135deg,
-							rgba(15, 15, 35, 0.9) 0%,
-							rgba(26, 26, 46, 0.7) 40%,
-							rgba(30, 30, 63, 0.8) 100%
-						),
-						linear-gradient(90deg, rgba(0, 0, 0, 0.8) 0%, transparent 70%);
+					z-index: 1;
+
+					.slide_bg_image {
+						width: 100%;
+						height: 100%;
+						object-fit: cover;
+						object-position: center;
+						transition: transform 8s ease-in-out;
+					}
+
+					.slide_gradient {
+						position: absolute;
+						top: 0;
+						left: 0;
+						right: 0;
+						bottom: 0;
+						background: linear-gradient(
+								135deg,
+								rgba(15, 15, 35, 0.9) 0%,
+								rgba(26, 26, 46, 0.7) 40%,
+								rgba(30, 30, 63, 0.8) 100%
+							),
+							linear-gradient(90deg, rgba(0, 0, 0, 0.8) 0%, transparent 70%);
+					}
 				}
-			}
 
-			.slide_content {
-				position: relative;
-				z-index: 2;
-				height: 100%;
-				display: flex;
-				align-items: center;
-				gap: 4rem;
-
-				@media (max-width: 1024px) {
-					flex-direction: column;
-					justify-content: center;
-					text-align: center;
-					gap: 2rem;
+				&--active .slide_bg_image {
+					transform: scale(1.1);
 				}
-			}
 
-			.slide_info {
-				flex: 1;
-				max-width: 600px;
-
-				.slide_meta {
+				.slide_content {
+					position: relative;
+					z-index: 2;
+					height: 100%;
 					display: flex;
 					align-items: center;
-					gap: 1rem;
-					margin-bottom: 1.5rem;
-					flex-wrap: wrap;
+					gap: 4rem;
 
 					@media (max-width: 1024px) {
+						flex-direction: column;
 						justify-content: center;
-					}
-
-					span {
-						padding: 0.5rem 1rem;
-						background: rgba(139, 92, 246, 0.2);
-						border: 1px solid rgba(139, 92, 246, 0.4);
-						border-radius: 20px;
-						color: #c084fc;
-						font-size: 0.9rem;
-						font-weight: 500;
-					}
-
-					.slide_type {
-						background: linear-gradient(45deg, #8b5cf6, #a855f7);
-						color: white;
-						border-color: transparent;
+						text-align: center;
+						gap: 2rem;
 					}
 				}
 
-				.slide_title {
-					font-size: clamp(2.5rem, 5vw, 4rem);
-					font-weight: 800;
-					color: white;
-					margin-bottom: 1.5rem;
-					line-height: 1.1;
-				}
+				.slide_info {
+					flex: 1;
+					max-width: 670px;
 
-				.slide_description {
-					font-size: 1.1rem;
-					line-height: 1.6;
-					color: rgba(255, 255, 255, 0.8);
-					margin-bottom: 2rem;
-				}
-
-				.slide_rating {
-					display: flex;
-					align-items: center;
-					gap: 2rem;
-					margin-bottom: 2.5rem;
-
-					@media (max-width: 1024px) {
-						justify-content: center;
-					}
-
-					.rating_score {
-						.rating_number {
-							font-size: 2rem;
-							font-weight: 700;
-						}
-					}
-
-					.rating_sources {
+					.slide_meta {
 						display: flex;
+						align-items: center;
 						gap: 1rem;
+						margin-bottom: 1.5rem;
 
-						.rating_source {
+						@media (max-width: 1024px) {
+							justify-content: center;
+						}
+
+						span {
 							display: flex;
 							align-items: center;
 							gap: 0.5rem;
 							padding: 0.5rem 1rem;
-							background: rgba(255, 255, 255, 0.1);
-							border-radius: 15px;
+							background: rgba(139, 92, 246, 0.2);
+							border: 1px solid rgba(139, 92, 246, 0.4);
+							border-radius: 20px;
+							color: #c084fc;
+							font-size: 14px;
+							font-weight: 500;
+							transition: all 0.3s ease;
 
-							.rating_icon {
-								font-size: 1.2rem;
-							}
-
-							.rating_value {
-								color: rgba(255, 255, 255, 0.9);
-								font-weight: 600;
+							&:hover {
+								background: rgba(139, 92, 246, 0.3);
+								border-color: rgba(139, 92, 246, 0.6);
+								transform: translateY(-2px);
 							}
 						}
 					}
-				}
 
-				.slide_actions {
-					display: flex;
-					gap: 1rem;
-					flex-wrap: wrap;
+					.slide_title {
+						position: relative;
+						margin-bottom: 1.5rem;
 
-					@media (max-width: 1024px) {
-						justify-content: center;
+						.slide_title_text {
+							font-size: clamp(2.5rem, 5vw, 3.5rem);
+							font-weight: 800;
+							color: white;
+							line-height: 1.1;
+							display: block;
+							opacity: 0;
+						}
+
+						.slide_title_underline {
+							position: absolute;
+							bottom: -0.5rem;
+							left: 0;
+							width: 0;
+							height: 4px;
+							background: linear-gradient(45deg, #8b5cf6, #a855f7);
+							border-radius: 2px;
+						}
 					}
 
-					.btn {
+					.slide_description {
+						font-size: 1.1rem;
+						line-height: 1.6;
+						color: rgba(255, 255, 255, 0.8);
+						margin-bottom: 2rem;
+						opacity: 0;
+					}
+
+					.slide_rating {
 						display: flex;
 						align-items: center;
-						gap: 0.75rem;
-						padding: 1rem 2rem;
-						border-radius: 50px;
-						font-weight: 600;
-						font-size: 1rem;
-						border: none;
-						cursor: pointer;
-						transition: all 0.3s ease;
+						gap: 2rem;
+						margin-bottom: 2.5rem;
 
-						&--primary {
-							background: linear-gradient(45deg, #8b5cf6, #a855f7);
-							color: white;
+						@media (max-width: 1024px) {
+							justify-content: center;
+							flex-direction: column;
+							gap: 1rem;
+						}
 
-							&:hover {
-								transform: translateY(-2px);
-								opacity: 0.9;
+						.rating_score {
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							gap: 0.5rem;
+
+							.rating_number {
+								font-size: 2rem;
+								font-weight: 700;
+							}
+
+							.rating_stars {
+								display: flex;
+								gap: 0.25rem;
+
+								.rating_star {
+									color: rgba(255, 255, 255, 0.3);
+									transition: color 0.3s ease;
+									display: inline-flex;
+
+									&--filled {
+										color: #fbbf24;
+									}
+								}
 							}
 						}
 
-						&--secondary {
-							background: rgba(255, 255, 255, 0.1);
-							color: white;
-							border: 1px solid rgba(139, 92, 246, 0.3);
+						.rating_sources {
+							display: flex;
+							gap: 1rem;
 
-							&:hover {
-								background: rgba(139, 92, 246, 0.2);
-								border-color: rgba(139, 92, 246, 0.5);
+							.rating_source {
+								display: flex;
+								flex-direction: column;
+								align-items: center;
+								gap: 0.25rem;
+								padding: 0.75rem 1rem;
+								background: rgba(255, 255, 255, 0.1);
+								border-radius: 15px;
+								transition: all 0.3s ease;
+
+								&:hover {
+									background: rgba(255, 255, 255, 0.15);
+									transform: translateY(-2px);
+								}
+
+								.rating_icon {
+									font-size: 1.2rem;
+								}
+
+								.rating_label {
+									color: rgba(255, 255, 255, 0.6);
+									font-size: 0.8rem;
+									font-weight: 500;
+								}
+
+								.rating_value {
+									color: rgba(255, 255, 255, 0.9);
+									font-weight: 600;
+								}
+							}
+						}
+					}
+
+					.slide_actions {
+						display: flex;
+						gap: 1rem;
+						flex-wrap: wrap;
+						opacity: 0;
+
+						@media (max-width: 1024px) {
+							justify-content: center;
+						}
+
+						.btn {
+							position: relative;
+							display: flex;
+							align-items: center;
+							gap: 0.75rem;
+							padding: 1rem 2rem;
+							border-radius: 50px;
+							font-weight: 600;
+							font-size: 1rem;
+							border: none;
+							cursor: pointer;
+							transition: all 0.3s ease;
+							overflow: hidden;
+
+							:global(.btn_icon) {
+								transition: transform 0.3s ease;
+								z-index: 2;
+								position: relative;
+							}
+
+							.btn_text {
+								z-index: 2;
+								position: relative;
+							}
+
+							.btn_ripple {
+								position: absolute;
+								top: 50%;
+								left: 50%;
+								width: 0;
+								height: 0;
+								background: rgba(255, 255, 255, 0.3);
+								border-radius: 50%;
+								transform: translate(-50%, -50%);
+								transition: all 0.6s ease;
+								z-index: 1;
+							}
+
+							&:hover .btn_ripple {
+								width: 300px;
+								height: 300px;
+							}
+
+							&--primary {
+								background: linear-gradient(45deg, #8b5cf6, #a855f7);
+								color: white;
+
+								&:hover {
+									transform: translateY(-2px);
+									box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+
+									:global(.btn_icon) {
+										transform: scale(1.1);
+									}
+								}
+							}
+
+							&--secondary {
+								background: rgba(255, 255, 255, 0.1);
+								color: white;
+								border: 1px solid rgba(139, 92, 246, 0.3);
+
+								&:hover {
+									background: rgba(139, 92, 246, 0.2);
+									border-color: rgba(139, 92, 246, 0.5);
+									transform: translateY(-2px);
+
+									:global(.btn_icon) {
+										transform: scale(1.1);
+									}
+								}
 							}
 						}
 					}
@@ -566,8 +776,13 @@
 
 					&:hover {
 						border-color: rgba(139, 92, 246, 0.6);
+						transform: scale(1.05);
 
 						.poster_overlay {
+							opacity: 1;
+						}
+
+						.poster_glow {
 							opacity: 1;
 						}
 					}
@@ -576,6 +791,7 @@
 						width: 100%;
 						height: 100%;
 						object-fit: cover;
+						transition: transform 0.3s ease;
 					}
 
 					.poster_overlay {
@@ -592,6 +808,7 @@
 						transition: opacity 0.3s ease;
 
 						.play_btn {
+							position: relative;
 							width: 80px;
 							height: 80px;
 							background: rgba(255, 255, 255, 0.2);
@@ -603,11 +820,44 @@
 							color: white;
 							cursor: pointer;
 							transition: all 0.3s ease;
+							overflow: hidden;
+
+							.play_btn_ripple {
+								position: absolute;
+								top: 50%;
+								left: 50%;
+								width: 0;
+								height: 0;
+								background: rgba(255, 255, 255, 0.3);
+								border-radius: 50%;
+								transform: translate(-50%, -50%);
+								transition: all 0.6s ease;
+							}
 
 							&:hover {
 								background: rgba(255, 255, 255, 0.3);
+								transform: scale(1.1);
+
+								.play_btn_ripple {
+									width: 100px;
+									height: 100px;
+								}
 							}
 						}
+					}
+
+					.poster_glow {
+						position: absolute;
+						top: -10px;
+						left: -10px;
+						right: -10px;
+						bottom: -10px;
+						background: linear-gradient(45deg, #8b5cf6, #a855f7);
+						border-radius: 30px;
+						opacity: 0;
+						filter: blur(20px);
+						transition: opacity 0.3s ease;
+						z-index: -1;
 					}
 				}
 			}
@@ -627,6 +877,7 @@
 			pointer-events: none;
 
 			.nav_btn {
+				position: relative;
 				pointer-events: all;
 				width: 60px;
 				height: 60px;
@@ -639,10 +890,29 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
+				overflow: hidden;
+
+				.nav_btn_ripple {
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					width: 0;
+					height: 0;
+					background: rgba(139, 92, 246, 0.3);
+					border-radius: 50%;
+					transform: translate(-50%, -50%);
+					transition: all 0.6s ease;
+				}
 
 				&:hover:not(:disabled) {
 					background: #8b5cf6;
 					border-color: #8b5cf6;
+					transform: scale(1.1);
+
+					.nav_btn_ripple {
+						width: 80px;
+						height: 80px;
+					}
 				}
 
 				&:disabled {
@@ -668,20 +938,44 @@
 			gap: 1rem;
 
 			.dot {
+				position: relative;
 				width: 12px;
 				height: 12px;
 				border-radius: 50%;
-				background: rgba(255, 255, 255, 0.3);
-				border: none;
+				background: transparent;
+				border: 2px solid rgba(255, 255, 255, 0.3);
 				cursor: pointer;
-				transition: background 0.3s ease;
+				transition: all 0.3s ease;
+
+				.dot_inner {
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					width: 0;
+					height: 0;
+					background: #8b5cf6;
+					border-radius: 50%;
+					transform: translate(-50%, -50%);
+					transition: all 0.3s ease;
+				}
 
 				&:hover {
-					background: rgba(139, 92, 246, 0.7);
+					border-color: rgba(139, 92, 246, 0.7);
+					transform: scale(1.2);
+
+					.dot_inner {
+						width: 8px;
+						height: 8px;
+					}
 				}
 
 				&--active {
-					background: #8b5cf6;
+					border-color: #8b5cf6;
+
+					.dot_inner {
+						width: 8px;
+						height: 8px;
+					}
 				}
 			}
 		}
@@ -697,9 +991,22 @@
 			z-index: 10;
 
 			.progress_bar {
+				position: relative;
 				height: 100%;
 				background: linear-gradient(45deg, #8b5cf6, #a855f7);
 				width: 0;
+
+				.progress_glow {
+					position: absolute;
+					top: -2px;
+					right: -5px;
+					width: 10px;
+					height: 8px;
+					background: #a855f7;
+					border-radius: 50%;
+					filter: blur(3px);
+					animation: pulse 1s ease-in-out infinite;
+				}
 			}
 		}
 
@@ -720,15 +1027,46 @@
 			display: flex;
 			align-items: center;
 			justify-content: center;
+			overflow: hidden;
+
+			.play_pause_ripple {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 0;
+				height: 0;
+				background: rgba(139, 92, 246, 0.3);
+				border-radius: 50%;
+				transform: translate(-50%, -50%);
+				transition: all 0.6s ease;
+			}
 
 			&:hover {
 				background: #8b5cf6;
 				border-color: #8b5cf6;
+				transform: scale(1.1);
+
+				.play_pause_ripple {
+					width: 70px;
+					height: 70px;
+				}
+			}
+
+			&--paused {
+				background: rgba(245, 158, 11, 0.2);
+				border-color: #f59e0b;
+				color: #f59e0b;
+
+				&:hover {
+					background: #f59e0b;
+					color: white;
+				}
 			}
 		}
 
 		// Empty State
 		.slider_empty {
+			position: relative;
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -739,11 +1077,33 @@
 			.empty_icon {
 				font-size: 4rem;
 				opacity: 0.5;
+				animation: bounce 2s ease-in-out infinite;
 			}
 
 			.empty_text {
 				color: rgba(255, 255, 255, 0.7);
 				font-size: 1.2rem;
+			}
+
+			.empty_decoration {
+				position: absolute;
+				width: 200px;
+				height: 200px;
+				border: 2px solid rgba(139, 92, 246, 0.1);
+				border-radius: 50%;
+				animation: rotate 20s linear infinite;
+
+				&::before {
+					content: '';
+					position: absolute;
+					top: -10px;
+					left: 50%;
+					width: 20px;
+					height: 20px;
+					background: rgba(139, 92, 246, 0.3);
+					border-radius: 50%;
+					transform: translateX(-50%);
+				}
 			}
 		}
 
@@ -774,6 +1134,37 @@
 						transparent 50%
 					);
 			}
+
+			.hero_particles {
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+
+				&::before,
+				&::after {
+					content: '';
+					position: absolute;
+					width: 4px;
+					height: 4px;
+					background: rgba(139, 92, 246, 0.3);
+					border-radius: 50%;
+					animation: float 6s ease-in-out infinite;
+				}
+
+				&::before {
+					top: 20%;
+					left: 10%;
+					animation-delay: 0s;
+				}
+
+				&::after {
+					top: 60%;
+					right: 15%;
+					animation-delay: 3s;
+				}
+			}
 		}
 	}
 
@@ -784,9 +1175,68 @@
 		}
 	}
 
-	@keyframes progress {
+	@keyframes pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.5;
+		}
+	}
+
+	@keyframes slideInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
 		to {
-			width: 100%;
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes slideInRight {
+		from {
+			width: 0;
+		}
+		to {
+			width: 100px;
+		}
+	}
+
+	@keyframes bounce {
+		0%,
+		20%,
+		50%,
+		80%,
+		100% {
+			transform: translateY(0);
+		}
+		40% {
+			transform: translateY(-10px);
+		}
+		60% {
+			transform: translateY(-5px);
+		}
+	}
+
+	@keyframes rotate {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes float {
+		0%,
+		100% {
+			transform: translateY(0px);
+		}
+		50% {
+			transform: translateY(-20px);
 		}
 	}
 
@@ -805,7 +1255,7 @@
 				gap: 1.5rem;
 			}
 
-			.slide .slide_info .slide_title {
+			.slide .slide_info .slide_title .slide_title_text {
 				font-size: clamp(2rem, 8vw, 3rem);
 			}
 

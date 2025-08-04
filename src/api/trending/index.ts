@@ -2,8 +2,6 @@ import { createQuery } from '@tanstack/svelte-query';
 import { api_tmdb } from '..';
 
 const useGetTrendingQuery = (date: TRADING.GetTradingsReq) => {
-	console.log(date);
-
 	return createQuery<TRADING.GetTradingsRes, Error>({
 		queryKey: [`/trending/movie/${date}`],
 		queryFn: async () => {

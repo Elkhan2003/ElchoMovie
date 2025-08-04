@@ -59,7 +59,7 @@
 					<div class="logo_icon">
 						<Film size={32} />
 					</div>
-					<span class="logo_text">KinoDev</span>
+					<span class="logo_text">ElchoMovie</span>
 				</a>
 				<p class="footer_description">
 					Ваш идеальный спутник в мире кино и сериалов. Откройте для себя новые

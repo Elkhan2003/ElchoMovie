@@ -278,7 +278,7 @@
 						left: 0;
 						right: 0;
 						bottom: 0;
-						backdrop-filter: blur(2px);
+						/* backdrop-filter: blur(2px); */
 						display: flex;
 						align-items: center;
 						justify-content: center;
@@ -320,14 +320,10 @@
 							display: flex;
 							align-items: center;
 							justify-content: center;
-							backdrop-filter: blur(10px);
 							cursor: pointer;
 							transition: all 0.3s ease;
 							color: white;
 							will-change: transform;
-
-							// Центрируем иконку Play (она обычно смещена влево)
-							padding-left: 4px;
 
 							&:hover {
 								background: rgba(255, 255, 255, 0.4);

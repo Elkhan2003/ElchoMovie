@@ -69,7 +69,7 @@
 					<!-- Rating Sort Switch -->
 					<div class="rating_sort">
 						<div class="rating_sort_label">
-							<Star class="rating_sort_icon" size={16} fill="currentColor" />
+							<Star size={16} fill="currentColor" />
 							<span class="rating_sort_text">
 								{sortRatingDesc ? 'Высокий → Низкий' : 'Низкий → Высокий'}
 							</span>

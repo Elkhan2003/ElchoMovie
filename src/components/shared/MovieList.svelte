@@ -111,20 +111,23 @@
 								loading="lazy"
 								decoding="async"
 							/>
+							<!-- Overlay с кнопкой Play -->
 							<div class="movie_item_overlay">
+								<!-- Rating в overlay -->
 								<div class="movie_item_rating">
-									<Star class="rating_icon" size={16} fill="currentColor" />
+									<Star size={16} fill="currentColor" />
 									<span class="rating_value">
 										{processedItem.formattedRating}
 									</span>
 								</div>
+								<!-- Кнопка Play -->
 								<button
 									class="movie_item_play"
 									onclick={(event) => handlePlayClick(processedItem, event)}
-									aria-label="Play"
+									aria-label="Play {processedItem.title}"
 									type="button"
 								>
-									<Play class="play_icon" size={24} fill="currentColor" />
+									<Play size={24} fill="currentColor" />
 								</button>
 							</div>
 						</div>
@@ -164,7 +167,6 @@
 			overflow-y: hidden;
 			padding: 1rem 0 2rem 0;
 			scroll-behavior: smooth;
-			// Добавляем will-change для оптимизации анимаций
 			will-change: scroll-position;
 
 			/* Custom scrollbar */
@@ -199,7 +201,6 @@
 				transition: all 0.3s ease;
 				cursor: pointer;
 				flex: 0 0 280px;
-				// Оптимизация для GPU рендеринга
 				transform: translateZ(0);
 				will-change: transform;
 
@@ -207,20 +208,25 @@
 					flex: 0 0 250px;
 				}
 
-				&:hover {
+				// Hover эффекты для карточки
+				&:hover:not(.movie_item--skeleton) {
 					transform: translateY(-10px) translateZ(0);
 					border-color: rgba(139, 92, 246, 0.4);
 					box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+
 					@media (max-width: 768px) {
 						box-shadow: none;
 					}
 
+					// При ховере увеличиваем изображение
 					.movie_item_image {
 						transform: scale(1.1);
 					}
 
+					// Показываем overlay с кнопкой Play
 					.movie_item_overlay {
 						opacity: 1;
+						visibility: visible;
 					}
 				}
 
@@ -244,7 +250,6 @@
 					position: relative;
 					aspect-ratio: 2/3;
 					overflow: hidden;
-					// Оптимизация изображений
 					contain: layout style paint;
 
 					.movie_item_image {
@@ -252,7 +257,6 @@
 						height: 100%;
 						object-fit: cover;
 						transition: transform 0.3s ease;
-						// Предотвращение layout shift
 						display: block;
 					}
 
@@ -267,38 +271,37 @@
 						animation: shimmer 2s infinite;
 					}
 
+					// Overlay с кнопкой Play
 					.movie_item_overlay {
 						position: absolute;
-						inset: 0;
-						background: linear-gradient(
-							45deg,
-							rgba(139, 92, 246, 0.8),
-							rgba(168, 85, 247, 0.8)
-						);
+						top: 0;
+						left: 0;
+						right: 0;
+						bottom: 0;
+						backdrop-filter: blur(2px);
 						display: flex;
 						align-items: center;
 						justify-content: center;
 						opacity: 0;
-						transition: opacity 0.3s ease;
-						// Оптимизация композитного слоя
-						will-change: opacity;
+						visibility: hidden;
+						transition: all 0.3s ease;
+						z-index: 10;
+						will-change: opacity, visibility;
 
+						// Rating в правом верхнем углу
 						.movie_item_rating {
 							position: absolute;
 							top: 1rem;
 							right: 1rem;
-							background: rgba(0, 0, 0, 0.7);
-							padding: 0.5rem;
+							background: rgba(0, 0, 0, 0.8);
+							padding: 0.5rem 0.75rem;
 							border-radius: 50px;
 							display: flex;
 							align-items: center;
 							gap: 0.25rem;
 							color: #fbbf24;
-
-							:global(.rating_icon) {
-								width: 16px;
-								height: 16px;
-							}
+							backdrop-filter: blur(10px);
+							border: 1px solid rgba(255, 255, 255, 0.2);
 
 							.rating_value {
 								font-size: 0.9rem;
@@ -307,27 +310,34 @@
 							}
 						}
 
+						// Кнопка Play в центре
 						.movie_item_play {
-							width: 60px;
-							height: 60px;
-							background: rgba(255, 255, 255, 0.2);
+							width: 70px;
+							height: 70px;
+							background: rgba(255, 255, 255, 0.25);
+							border: 3px solid rgba(255, 255, 255, 0.6);
 							border-radius: 50%;
 							display: flex;
 							align-items: center;
 							justify-content: center;
 							backdrop-filter: blur(10px);
-							border: 2px solid rgba(255, 255, 255, 0.3);
+							cursor: pointer;
 							transition: all 0.3s ease;
+							color: white;
 							will-change: transform;
 
+							// Центрируем иконку Play (она обычно смещена влево)
+							padding-left: 4px;
+
 							&:hover {
-								background: rgba(255, 255, 255, 0.3);
-								transform: scale(1.1);
+								background: rgba(255, 255, 255, 0.4);
+								border-color: rgba(255, 255, 255, 0.8);
+								transform: scale(1.15);
+								box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 							}
 
-							:global(.play_icon) {
-								color: white;
-								margin-left: 3px;
+							&:active {
+								transform: scale(1.05);
 							}
 						}
 					}
@@ -364,9 +374,8 @@
 						line-height: 1.5;
 						margin: 0 0 1rem 0;
 						flex: 1;
-						// Убираем CSS обрезание, так как теперь используем JavaScript
 						word-break: break-word;
-						cursor: help; // Показываем, что есть tooltip с полным текстом
+						cursor: help;
 					}
 
 					.movie_item_meta {
@@ -393,7 +402,7 @@
 						}
 					}
 
-					// Skeleton styles с содержанием layout и style
+					// Skeleton styles
 					.skeleton_title,
 					.skeleton_date,
 					.skeleton_overview,

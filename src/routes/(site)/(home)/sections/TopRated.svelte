@@ -55,23 +55,23 @@
 	};
 </script>
 
-<section class="top_ated">
+<section class="top_rated">
 	<div class="container">
-		<div class="top_ated_content">
+		<div class="top_rated_content">
 			<!-- Header Section -->
-			<div class="top_ated_header">
-				<div class="top_ated_title_section">
-					<h1 class="top_ated_title">Top Rated</h1>
-					<p class="top_ated_subtitle">
+			<div class="top_rated_header">
+				<div class="top_rated_title_section">
+					<h1 class="top_rated_title">Top Rated</h1>
+					<p class="top_rated_subtitle">
 						Highest rated content by critics and audiences
 					</p>
 				</div>
 
-				<div class="top_ated_controls">
+				<div class="top_rated_controls">
 					<!-- Rating Sort Switch -->
 					<div class="rating_sort">
 						<div class="rating_sort_label">
-							<Star class="rating_sort_icon" size={16} fill="currentColor" />
+							<Star size={16} fill="currentColor" />
 							<span class="rating_sort_text">
 								{sortRatingDesc ? 'Высокий → Низкий' : 'Низкий → Высокий'}
 							</span>
@@ -107,12 +107,12 @@
 			</div>
 
 			<!-- Content Section -->
-			<div class="top_ated_main">
+			<div class="top_rated_main">
 				<!-- Error State -->
 				{#if isErrorTopRated}
-					<div class="top_ated_error">
+					<div class="top_rated_error">
 						<div class="error_icon">⚠️</div>
-						<p class="error_text">Failed to load top_ated content</p>
+						<p class="error_text">Failed to load top_rated content</p>
 						<button class="error_retry_btn" onclick={handleReload}>
 							Try Again
 						</button>
@@ -131,17 +131,17 @@
 </section>
 
 <style lang="scss">
-	.top_ated {
+	.top_rated {
 		position: relative;
 		padding: 30px 0;
 		overflow: hidden;
 
-		.top_ated_content {
+		.top_rated_content {
 			position: relative;
 			z-index: 10;
 		}
 
-		.top_ated_header {
+		.top_rated_header {
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
@@ -155,8 +155,8 @@
 				text-align: center;
 			}
 
-			.top_ated_title_section {
-				.top_ated_title {
+			.top_rated_title_section {
+				.top_rated_title {
 					display: flex;
 					align-items: center;
 					gap: 1rem;
@@ -174,14 +174,14 @@
 					}
 				}
 
-				.top_ated_subtitle {
+				.top_rated_subtitle {
 					color: rgba(255, 255, 255, 0.7);
 					font-size: 1.1rem;
 					margin: 0;
 				}
 			}
 
-			.top_ated_controls {
+			.top_rated_controls {
 				display: flex;
 				align-items: center;
 				gap: 1.5rem;
@@ -329,8 +329,8 @@
 			}
 		}
 
-		.top_ated_main {
-			.top_ated_error {
+		.top_rated_main {
+			.top_rated_error {
 				display: flex;
 				flex-direction: column;
 				align-items: center;

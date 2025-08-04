@@ -22,22 +22,22 @@
 		timestamp: string;
 	};
 
-	// Состояние компонента
-	let apiUrl: string = '';
-	let bearerToken: string = '';
-	let jsonData: string = '';
-	let parsedData: ApiRequestData[] = [];
-	let isRunning: boolean = false;
-	let results: RequestResult[] = [];
-	let currentIndex: number = 0;
-	let delay: number = 500; // задержка между запросами в мс
+	// Состояние компонента с использованием $state()
+	let apiUrl = $state('');
+	let bearerToken = $state('');
+	let jsonData = $state('');
+	let parsedData = $state<ApiRequestData[]>([]);
+	let isRunning = $state(false);
+	let results = $state<RequestResult[]>([]);
+	let currentIndex = $state(0);
+	let delay = $state(500); // задержка между запросами в мс
 
 	// Загрузка токена из localStorage при монтировании
 	onMount((): void => {
 		if (browser) {
 			const savedToken: string | null = localStorage.getItem('bearerToken');
 			const savedApiUrl: string | null = localStorage.getItem('apiUrl');
-			if (savedToken) bearerToken = savedToken;
+			if (savedToken) apiUrl = savedToken;
 			if (savedApiUrl) apiUrl = savedApiUrl;
 		}
 	});
@@ -190,13 +190,18 @@
 		parseJsonData();
 	}
 
-	// Реактивные переменные с типизацией
-	$: successCount = results.filter(
-		(r: RequestResult): boolean => r.status >= 200 && r.status < 300
-	).length;
-	$: errorCount = results.filter(
-		(r: RequestResult): boolean => r.status < 200 || r.status >= 300
-	).length;
+	// Производные значения с использованием $derived()
+	const successCount = $derived(
+		results.filter(
+			(r: RequestResult): boolean => r.status >= 200 && r.status < 300
+		).length
+	);
+
+	const errorCount = $derived(
+		results.filter(
+			(r: RequestResult): boolean => r.status < 200 || r.status >= 300
+		).length
+	);
 </script>
 
 <svelte:head>
@@ -263,10 +268,10 @@
 		</div>
 
 		<div class="button-group">
-			<button on:click={parseJsonData} disabled={isRunning}>
+			<button onclick={parseJsonData} disabled={isRunning}>
 				📝 Парсить данные
 			</button>
-			<button on:click={loadExampleData} disabled={isRunning}>
+			<button onclick={loadExampleData} disabled={isRunning}>
 				💡 Загрузить пример
 			</button>
 		</div>
@@ -287,7 +292,7 @@
 		<div class="button-group">
 			<button
 				class="run-button"
-				on:click={runBulkSend}
+				onclick={runBulkSend}
 				disabled={isRunning ||
 					!apiUrl ||
 					!bearerToken ||
@@ -301,7 +306,7 @@
 			</button>
 
 			{#if results.length > 0}
-				<button on:click={clearResults} disabled={isRunning}>
+				<button onclick={clearResults} disabled={isRunning}>
 					🗑️ Очистить результаты
 				</button>
 			{/if}

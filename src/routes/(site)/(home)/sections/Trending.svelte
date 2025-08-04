@@ -1,143 +1,347 @@
 <script lang="ts">
+	import { Star } from '@lucide/svelte';
 	import { useGetTrendingQuery } from '../../../../api/trending';
+	import MovieList from '../../../../components/shared/MovieList.svelte';
 
-	let switchDate = $state<'day' | 'week'>('day');
+	let dateSwitcher = $state<'day' | 'week'>('day');
+	let sortRatingDesc = $state<boolean>(true);
 
-	const trendingQuery = $derived(useGetTrendingQuery(switchDate));
-	const { data: trendingData, isLoading, error } = $derived($trendingQuery);
+	const trendingQuery = $derived(useGetTrendingQuery(dateSwitcher));
+	const {
+		data: trendingData,
+		isLoading: isLoadingTrending,
+		error: isErrorTrending
+	} = $derived($trendingQuery);
 
-	$effect(() => {
-		console.log('Trending data updated:', trendingData);
-		console.log('Current date filter:', switchDate);
+	// Computed свойство для отсортированных данных
+	const sortedTrendingData = $derived(() => {
+		if (!trendingData?.results) return [];
+
+		const results = [...trendingData.results];
+
+		return results.sort((a, b) => {
+			if (sortRatingDesc) {
+				return b.vote_average - a.vote_average;
+			} else {
+				return a.vote_average - b.vote_average;
+			}
+		});
 	});
+
+	const handleSwitchDate = async (date: 'day' | 'week') => {
+		dateSwitcher = date;
+	};
+
+	const handleRatingSort = () => {
+		sortRatingDesc = !sortRatingDesc;
+	};
+
+	// Обработчики событий для MovieList
+	const handleMovieClick = (item: any) => {
+		console.log('Movie clicked:', item);
+		// Здесь можно добавить навигацию к детальной странице фильма
+		// goto(`/movie/${item.id}`);
+	};
+
+	const handlePlayClick = (item: any) => {
+		console.log('Play clicked:', item);
+		// Здесь можно добавить логику воспроизведения трейлера
+	};
+
+	const handleReload = () => {
+		window.location.reload();
+	};
 </script>
 
-<section class="Trading">
+<section class="trending">
 	<div class="container">
-		<div class="content">
-			<h1>Trending</h1>
+		<div class="trending_content">
+			<!-- Header Section -->
+			<div class="trending_header">
+				<div class="trending_title_section">
+					<h1 class="trending_title">Trending</h1>
+					<p class="trending_subtitle">Discover what's popular right now</p>
+				</div>
 
-			<div class="controls">
-				<button
-					onclick={() => (switchDate = 'day')}
-					class:active={switchDate === 'day'}
-				>
-					Today
-				</button>
-				<button
-					onclick={() => (switchDate = 'week')}
-					class:active={switchDate === 'week'}
-				>
-					This Week
-				</button>
+				<div class="trending_controls">
+					<!-- Rating Sort Switch -->
+					<div class="rating_sort">
+						<div class="rating_sort_label">
+							<Star class="rating_sort_icon" size={16} fill="currentColor" />
+							<span class="rating_sort_text">
+								{sortRatingDesc ? 'Высокий → Низкий' : 'Низкий → Высокий'}
+							</span>
+						</div>
+						<button
+							onclick={handleRatingSort}
+							class="rating_switch"
+							class:rating_switch--active={sortRatingDesc}
+							aria-label="Toggle rating sort"
+						>
+							<div class="rating_switch_thumb"></div>
+						</button>
+					</div>
+
+					<!-- Date Switcher -->
+					<div class="date_switcher">
+						<button
+							onclick={() => handleSwitchDate('day')}
+							class="date_switcher_btn"
+							class:date_switcher_btn--active={dateSwitcher === 'day'}
+						>
+							<span class="date_switcher_btn_text">Today</span>
+						</button>
+						<button
+							onclick={() => handleSwitchDate('week')}
+							class="date_switcher_btn"
+							class:date_switcher_btn--active={dateSwitcher === 'week'}
+						>
+							<span class="date_switcher_btn_text">This Week</span>
+						</button>
+					</div>
+				</div>
 			</div>
 
-			<div class="status">
-				<p>Current filter: <strong>{switchDate}</strong></p>
-
-				{#if isLoading}
-					<p>Loading trending movies...</p>
-				{:else if error}
-					<p>Error: {error.message}</p>
-				{:else if trendingData}
-					<p>Found {trendingData.results?.length || 0} trending movies</p>
+			<!-- Content Section -->
+			<div class="trending_main">
+				<!-- Error State -->
+				{#if isErrorTrending}
+					<div class="trending_error">
+						<div class="error_icon">⚠️</div>
+						<p class="error_text">Failed to load trending content</p>
+						<button class="error_retry_btn" onclick={handleReload}>
+							Try Again
+						</button>
+					</div>
+				{:else}
+					<!-- Movie List Component -->
+					<MovieList items={sortedTrendingData()} loading={isLoadingTrending} />
 				{/if}
 			</div>
-
-			{#if trendingData?.results}
-				<div class="movies">
-					{#each trendingData.results.slice(0, 5) as movie (movie.id)}
-						<div class="movie-card">
-							<h3>{movie.title}</h3>
-							<p>Rating: {movie.vote_average.toFixed(1)}</p>
-							<p>Release: {movie.release_date}</p>
-						</div>
-					{/each}
-				</div>
-			{/if}
 		</div>
 	</div>
 </section>
 
 <style lang="scss">
-	.Trading {
-		padding: 2rem 0;
+	.trending {
+		position: relative;
+		padding: 30px 0;
+		overflow: hidden;
 
-		.content {
-			h1 {
-				color: #a855f7;
-				margin-bottom: 2rem;
+		.trending_content {
+			position: relative;
+			z-index: 10;
+		}
+
+		.trending_header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 1rem;
+			padding-bottom: 1rem;
+			border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+
+			@media (max-width: 768px) {
+				flex-direction: column;
+				gap: 2rem;
+				text-align: center;
 			}
 
-			.controls {
-				display: flex;
-				gap: 1rem;
-				margin-bottom: 2rem;
+			.trending_title_section {
+				.trending_title {
+					display: flex;
+					align-items: center;
+					gap: 1rem;
+					font-size: 3rem;
+					font-weight: bold;
+					background: linear-gradient(45deg, #ffffff, #c084fc);
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+					background-clip: text;
+					margin: 0 0 0.5rem 0;
 
-				button {
-					padding: 0.75rem 1.5rem;
-					border: 2px solid #a855f7;
-					background: transparent;
-					color: #a855f7;
-					border-radius: 8px;
+					@media (max-width: 768px) {
+						justify-content: center;
+						font-size: 2.5rem;
+					}
+				}
+
+				.trending_subtitle {
+					color: rgba(255, 255, 255, 0.7);
+					font-size: 1.1rem;
+					margin: 0;
+				}
+			}
+
+			.trending_controls {
+				display: flex;
+				align-items: center;
+				gap: 1.5rem;
+
+				@media (max-width: 768px) {
+					flex-direction: column;
+					gap: 1rem;
+					width: 100%;
+				}
+
+				.rating_sort {
+					display: flex;
+					align-items: center;
+					gap: 1rem;
+					padding: 0.75rem 1rem;
+					background: rgba(255, 255, 255, 0.08);
+					border-radius: 50px;
+					backdrop-filter: blur(10px);
+					border: 1px solid rgba(139, 92, 246, 0.2);
+
+					.rating_sort_label {
+						display: flex;
+						align-items: center;
+						gap: 0.5rem;
+						color: rgba(255, 255, 255, 0.8);
+						font-size: 0.9rem;
+						font-weight: 500;
+
+						:global(.rating_sort_icon) {
+							color: #fbbf24;
+						}
+
+						.rating_sort_text {
+							white-space: nowrap;
+
+							@media (max-width: 768px) {
+								font-size: 0.8rem;
+							}
+						}
+					}
+
+					.rating_switch {
+						position: relative;
+						width: 44px;
+						height: 24px;
+						background: rgba(255, 255, 255, 0.2);
+						border: 1px solid rgba(139, 92, 246, 0.3);
+						border-radius: 12px;
+						cursor: pointer;
+						transition: all 0.3s ease;
+
+						&:hover {
+							background: rgba(255, 255, 255, 0.3);
+						}
+
+						&--active {
+							background: linear-gradient(45deg, #8b5cf6, #a855f7);
+							border-color: transparent;
+
+							.rating_switch_thumb {
+								transform: translateX(20px);
+							}
+						}
+
+						.rating_switch_thumb {
+							position: absolute;
+							top: 2px;
+							left: 2px;
+							width: 18px;
+							height: 18px;
+							background: white;
+							border-radius: 50%;
+							transition: transform 0.3s ease;
+						}
+					}
+				}
+
+				.date_switcher {
+					display: flex;
+					gap: 5px;
+					background: rgba(255, 255, 255, 0.08);
+					border-radius: 50px;
+					padding: 5px;
+					backdrop-filter: blur(10px);
+					border: 1px solid rgba(139, 92, 246, 0.2);
+
+					.date_switcher_btn {
+						background: transparent;
+						border: none;
+						padding: 0.75rem 1.5rem;
+						border-radius: 25px;
+						color: rgba(255, 255, 255, 0.7);
+						font-weight: 500;
+						cursor: pointer;
+						transition: all 0.3s ease;
+						position: relative;
+						overflow: hidden;
+
+						&::before {
+							content: '';
+							position: absolute;
+							top: 0;
+							left: 0;
+							right: 0;
+							bottom: 0;
+							background: linear-gradient(45deg, #8b5cf6, #a855f7);
+							opacity: 0;
+							transition: opacity 0.3s ease;
+						}
+
+						.date_switcher_btn_text {
+							position: relative;
+							z-index: 2;
+						}
+
+						&:hover:not(.date_switcher_btn--active) {
+							color: white;
+							transform: translateY(-1px);
+
+							&::before {
+								opacity: 0.1;
+							}
+						}
+
+						&--active {
+							color: white;
+
+							&::before {
+								opacity: 1;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.trending_main {
+			.trending_error {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				min-height: 400px;
+				gap: 1.5rem;
+
+				.error_icon {
+					font-size: 3rem;
+				}
+
+				.error_text {
+					color: rgba(255, 255, 255, 0.7);
+					font-size: 1.1rem;
+					margin: 0;
+				}
+
+				.error_retry_btn {
+					background: linear-gradient(45deg, #8b5cf6, #a855f7);
+					color: white;
+					border: none;
+					padding: 0.75rem 2rem;
+					border-radius: 25px;
+					font-weight: 500;
 					cursor: pointer;
 					transition: all 0.3s ease;
 
 					&:hover {
-						background: rgba(168, 85, 247, 0.1);
-					}
-
-					&.active {
-						background: #a855f7;
-						color: white;
-					}
-				}
-			}
-
-			.status {
-				margin-bottom: 2rem;
-				padding: 1rem;
-				background: rgba(168, 85, 247, 0.1);
-				border-radius: 8px;
-				border-left: 4px solid #a855f7;
-
-				p {
-					margin: 0.5rem 0;
-					color: rgba(255, 255, 255, 0.8);
-
-					strong {
-						color: #a855f7;
-					}
-				}
-			}
-
-			.movies {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-				gap: 1rem;
-
-				.movie-card {
-					padding: 1rem;
-					background: rgba(255, 255, 255, 0.05);
-					border: 1px solid rgba(168, 85, 247, 0.2);
-					border-radius: 8px;
-					transition: all 0.3s ease;
-
-					&:hover {
-						border-color: #a855f7;
 						transform: translateY(-2px);
-					}
-
-					h3 {
-						color: white;
-						margin: 0 0 0.5rem 0;
-						font-size: 1.1rem;
-					}
-
-					p {
-						color: rgba(255, 255, 255, 0.7);
-						margin: 0.25rem 0;
-						font-size: 0.9rem;
+						box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
 					}
 				}
 			}

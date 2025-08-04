@@ -115,7 +115,11 @@
 					</div>
 				{:else}
 					<!-- Movie List Component -->
-					<MovieList items={sortedTrendingData()} loading={isLoadingTrending} />
+					<MovieList
+						items={sortedTrendingData()}
+						loading={isLoadingTrending}
+						maxOverviewLength={100}
+					/>
 				{/if}
 			</div>
 		</div>

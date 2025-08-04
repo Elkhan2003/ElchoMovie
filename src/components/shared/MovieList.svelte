@@ -14,16 +14,34 @@
 	interface Props {
 		items: MovieItem[];
 		loading?: boolean;
+		maxOverviewLength?: number;
 	}
 
-	let { items, loading = false }: Props = $props();
+	let { items, loading = false, maxOverviewLength = 150 }: Props = $props();
+
+	// Функция для обрезания текста
+	const truncateText = (text: string, maxLength: number): string => {
+		if (!text || text.length <= maxLength) return text || 'Описание недоступно';
+
+		// Обрезаем текст и находим последний пробел, чтобы не разрывать слова
+		const truncated = text.substring(0, maxLength);
+		const lastSpaceIndex = truncated.lastIndexOf(' ');
+
+		// Если нашли пробел в последних 20 символах, обрезаем по нему
+		if (lastSpaceIndex > maxLength - 20) {
+			return truncated.substring(0, lastSpaceIndex).trim() + '...';
+		}
+
+		return truncated.trim() + '...';
+	};
 
 	const processedItems = $derived(
 		items.map((item) => ({
 			...item,
 			posterUrl: `https://image.tmdb.org/t/p/w500${item.poster_path}`,
 			ratingColor: getRatingColor(item.vote_average),
-			formattedRating: item.vote_average.toFixed(1)
+			formattedRating: item.vote_average.toFixed(1),
+			truncatedOverview: truncateText(item.overview, maxOverviewLength)
 		}))
 	);
 
@@ -115,7 +133,9 @@
 						<div class="movie_item_info">
 							<h3 class="movie_item_title">{processedItem.title}</h3>
 							<p class="movie_item_date">{processedItem.release_date}</p>
-							<p class="movie_item_overview">{processedItem.overview}</p>
+							<p class="movie_item_overview" title={processedItem.overview}>
+								{processedItem.truncatedOverview}
+							</p>
 							<div class="movie_item_meta">
 								<span class="movie_item_type">{processedItem.media_type}</span>
 								<div class="movie_item_rating_badge">
@@ -344,11 +364,9 @@
 						line-height: 1.5;
 						margin: 0 0 1rem 0;
 						flex: 1;
-						display: -webkit-box;
-						line-clamp: 3;
-						-webkit-box-orient: vertical;
-						overflow: hidden;
+						// Убираем CSS обрезание, так как теперь используем JavaScript
 						word-break: break-word;
+						cursor: help; // Показываем, что есть tooltip с полным текстом
 					}
 
 					.movie_item_meta {

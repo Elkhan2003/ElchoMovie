@@ -213,7 +213,7 @@
 						font-size: 0.9rem;
 						font-weight: 500;
 
-						:global(.rating_sort_icon) {
+						:global(svg) {
 							color: #fbbf24;
 						}
 

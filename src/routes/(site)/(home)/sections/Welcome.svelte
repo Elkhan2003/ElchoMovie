@@ -7,7 +7,9 @@
 		Pause,
 		Calendar,
 		Clock,
-		Globe
+		Globe,
+		Film,
+		Shield
 	} from '@lucide/svelte';
 	import { useGetUpcomingQuery } from '../../../../api/upcoming';
 
@@ -209,11 +211,11 @@
 								<div class="slide_info">
 									<div class="slide_meta">
 										<span>
-											<Calendar size={16} />
+											<Film size={16} />
 											Фильм
 										</span>
 										<span>
-											<Calendar size={16} />
+											<Shield size={16} />
 											{getRandomAgeRating()}
 										</span>
 										<span>

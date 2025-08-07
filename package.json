@@ -25,7 +25,9 @@
 	"dependencies": {
 		"@lucide/svelte": "^0.535.0",
 		"@tanstack/svelte-query": "^5.83.0",
+		"@tanstack/svelte-store": "^0.7.3",
 		"axios": "^1.11.0",
-		"sass-embedded": "^1.89.2"
+		"sass-embedded": "^1.89.2",
+		"svelte-portal": "^2.2.1"
 	}
 }

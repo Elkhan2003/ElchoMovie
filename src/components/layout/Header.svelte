@@ -2,25 +2,12 @@
 	import { page } from '$app/state';
 	import { Film, Search } from '@lucide/svelte';
 	import { navigationRoutes } from '$lib/constants/route-links';
+	import SearchModal from '../shared/SearchModal.svelte';
 
-	let searchQuery = $state('');
-
-	const handleSearch = () => {
-		if (searchQuery.trim()) {
-			console.log('Поиск:', searchQuery);
-			// Здесь будет логика поиска
-		}
-	};
-
-	const handleKeyDown = (event: KeyboardEvent) => {
-		if (event.key === 'Enter') {
-			handleSearch();
-		}
-	};
+	let isOpenSearchModal = $state<boolean>(false);
 
 	const toggleSearchModal = () => {
-		console.log('Открыть модальное окно поиска');
-		// Здесь будет логика открытия модального окна
+		isOpenSearchModal = !isOpenSearchModal;
 	};
 
 	const currentPath = $derived((href: string) => {
@@ -57,20 +44,10 @@
 			</nav>
 
 			<!-- Поиск -->
-			<div class="search">
-				<div class="search_input_wrapper">
-					<input
-						bind:value={searchQuery}
-						type="text"
-						placeholder="Поиск фильмов, сериалов..."
-						class="search_input"
-						onkeydown={handleKeyDown}
-						onclick={toggleSearchModal}
-					/>
-					<button onclick={handleSearch} class="search_btn">
-						<Search size={18} />
-					</button>
-				</div>
+			<div class="site_actions">
+				<button onclick={toggleSearchModal} class="search_btn">
+					<Search size={21} />
+				</button>
 			</div>
 
 			<!-- Пользователь -->
@@ -81,6 +58,11 @@
 		</div>
 	</div>
 </header>
+
+<SearchModal
+	isOpen={isOpenSearchModal}
+	onClose={() => (isOpenSearchModal = false)}
+/>
 
 <style lang="scss">
 	.header {
@@ -188,57 +170,22 @@
 				}
 			}
 
-			.search {
+			.site_actions {
 				flex: 1;
 				max-width: 400px;
 
-				.search_input_wrapper {
-					position: relative;
+				.search_btn {
+					padding: 2px;
 					display: flex;
+					justify-content: center;
 					align-items: center;
-
-					.search_input {
-						width: 100%;
-						padding: 0.75rem 3rem 0.75rem 1rem;
-						background: rgba(255, 255, 255, 0.08);
-						border: 1px solid rgba(139, 92, 246, 0.2);
-						border-radius: 25px;
-						color: white;
-						font-size: 0.9rem;
-						backdrop-filter: blur(10px);
-						transition: all 0.3s ease;
-
-						&::placeholder {
-							color: rgba(255, 255, 255, 0.5);
-						}
-
-						&:focus {
-							outline: none;
-							border-color: #8b5cf6;
-							background: rgba(255, 255, 255, 0.12);
-							box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-						}
-					}
-
-					.search_btn {
-						position: absolute;
-						right: 8px;
-						background: linear-gradient(45deg, #8b5cf6, #a855f7);
-						border: none;
-						border-radius: 50%;
-						width: 36px;
-						height: 36px;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						color: white;
-						cursor: pointer;
-						transition: all 0.3s ease;
-
-						&:hover {
-							transform: scale(1.1);
-							box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
-						}
+					background: transparent;
+					border: none;
+					outline: none;
+					cursor: pointer;
+					transition: 0.2s;
+					&:hover {
+						opacity: 0.7;
 					}
 				}
 			}

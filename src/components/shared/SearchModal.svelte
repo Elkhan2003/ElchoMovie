@@ -314,23 +314,6 @@
 		flex: 1;
 		padding: 2rem 4rem;
 		overflow-y: auto;
-
-		&::-webkit-scrollbar {
-			width: 6px;
-		}
-
-		&::-webkit-scrollbar-track {
-			background: rgba(255, 255, 255, 0.05);
-		}
-
-		&::-webkit-scrollbar-thumb {
-			background: rgba(255, 255, 255, 0.2);
-			border-radius: 3px;
-
-			&:hover {
-				background: rgba(255, 255, 255, 0.3);
-			}
-		}
 	}
 
 	.state-message {

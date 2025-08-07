@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { Search, X, Image, LoaderCircle } from '@lucide/svelte';
 	import { goto } from '$app/navigation';
-	import { useGetSearchQuery } from '../../api/search';
 	import { portal } from 'svelte-portal';
+	import { useGetSearchQuery } from '../../api/search';
+	import DebounceInput from './DebounceInput.svelte';
 
 	interface Props {
 		isOpen: boolean;
@@ -29,11 +30,9 @@
 		const year = date ? new Date(date).getFullYear().toString() : 'Неизвестно';
 		const rating = item.vote_average?.toFixed(1) || '0.0';
 		const title = item.title || item.name || '';
-
 		const typeMap = { movie: 'Фильм', tv: 'Сериал', person: 'Персона' };
 		const type =
 			typeMap[item.media_type as keyof typeof typeMap] || 'Неизвестно';
-
 		return { year, rating, title, type };
 	};
 
@@ -59,6 +58,12 @@
 		goto(`/${item.media_type}/${item.id}`);
 	};
 
+	const handleKeydown = (event: KeyboardEvent) => {
+		if (event.key === 'Escape') {
+			closeModal();
+		}
+	};
+
 	// Упрощенное склонение
 	const getResultsText = (count: number) => {
 		const lastDigit = count % 10;
@@ -80,6 +85,7 @@
 	});
 </script>
 
+<svelte:window on:keydown={handleKeydown} />
 <div
 	use:portal={'body'}
 	class="modal-overlay"
@@ -97,11 +103,13 @@
 			<h1 class="title">Поиск</h1>
 			<div class="search-wrapper">
 				<Search class="search-icon" size={20} />
-				<input
-					type="text"
+				<DebounceInput
 					bind:value={searchInput}
+					type="text"
 					placeholder="Название фильма, сериала или актёра"
-					class="search-input"
+					className="search-input"
+					delay={300}
+					shouldFocus={isOpen}
 				/>
 			</div>
 		</div>

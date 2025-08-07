@@ -18,6 +18,7 @@
 	const { data: upcomingData, isLoading } = $derived($upcomingQuery);
 
 	// Состояние слайдера
+	let sectionRef: HTMLElement;
 	let currentSlide = $state(0);
 	let isPaused = $state(false);
 	let isHovered = $state(false);
@@ -152,13 +153,15 @@
 
 	// Управление слайдером с клавиатуры
 	const handleKeydown = (event: KeyboardEvent) => {
-		if (event.key === 'ArrowLeft') {
-			prevSlide();
-		} else if (event.key === 'ArrowRight') {
-			nextSlide();
-		} else if (event.key === ' ') {
-			event.preventDefault();
-			togglePlayPause();
+		if (sectionRef.contains(document.activeElement)) {
+			if (event.key === 'ArrowLeft') {
+				prevSlide();
+			} else if (event.key === 'ArrowRight') {
+				nextSlide();
+			} else if (event.key === ' ') {
+				event.preventDefault();
+				togglePlayPause();
+			}
 		}
 	};
 
@@ -174,13 +177,14 @@
 </script>
 
 <!-- Обработка событий клавиатуры через svelte:window -->
-<svelte:window on:keydown={handleKeydown} />
+<!-- <svelte:window on:keydown={handleKeydown} /> -->
 
 <section
 	class="Welcome"
 	aria-label="Слайдер с популярными фильмами"
 	onmouseenter={handleMouseEnter}
 	onmouseleave={handleMouseLeave}
+	bind:this={sectionRef}
 >
 	<div class="slider_container">
 		<!-- Loading State -->

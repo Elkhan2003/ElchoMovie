@@ -8,6 +8,7 @@
 	<div class="container">
 		<div class="content">
 			<h1>Counter</h1>
+			<input type="text" />
 			<button onclick={() => (isOpenModalCounter = true)}>open</button>
 			<ModalCounter
 				isOpen={isOpenModalCounter}
